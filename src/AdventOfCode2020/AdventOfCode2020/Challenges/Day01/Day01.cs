@@ -1,6 +1,8 @@
-﻿using System;
+﻿using AdventOfCode2020.MathHelpers;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 #nullable enable
 
 namespace AdventOfCode2020.Challenges.Day01
@@ -29,40 +31,51 @@ namespace AdventOfCode2020.Challenges.Day01
             // Of course, your expense report is much larger. Find the two entries that sum to 2020; what do you get if you multiply them together?
             // Answer: 157059
             var inputData = GetDay01Input();
-            var foundEntries = GetNumberIndexesThatSumToTarget(inputData, 2020);
-            var result = GetProductOfFoundEntries(inputData, foundEntries);
+            var foundEntries = GetNumbersThatSumToTarget(inputData, 2, 2020);
+            var result = GetProductOfFoundEntries(foundEntries);
             return result;
         }
 
-        public static int GetProductOfFoundEntries(IList<int> sourceList, IList<int> foundIndexes)
+        public static int GetDay01Part02Answer()
+        {
+            // --- Part Two ---
+            // The Elves in accounting are thankful for your help; one of them even offers you a starfish coin they had left over from a past vacation.They offer you a second one if you can find three numbers in your expense report that meet the same criteria.
+            // Using the above example again, the three entries that sum to 2020 are 979, 366, and 675.Multiplying them together produces the answer, 241861950.
+            // In your expense report, what is the product of the three entries that sum to 2020?
+            // Answer: 165080960
+            var inputData = GetDay01Input();
+            var foundEntries = GetNumbersThatSumToTarget(inputData, 3, 2020);
+            var result = GetProductOfFoundEntries(foundEntries);
+            return result;
+        }
+
+        public static int GetProductOfFoundEntries(IList<int> foundNumbers)
         {
             var result = 1;
-            foreach (int currentIndex in foundIndexes)
+            foreach (var foundNumber in foundNumbers)
             {
-                result *= sourceList[currentIndex];
+                result *= foundNumber;
             }
             return result;
         }
 
-        public static IList<int> GetNumberIndexesThatSumToTarget(IList<int> numberList, int targetSum)
+        public static IList<int> GetNumbersThatSumToTarget(IList<int> numberList, int numberOfEntries, int targetSum)
         {
-            for (int i = 0; i < numberList.Count; i++)
+            var combinationsEnumerator = CombinationsHelper.CombinationsRosettaWoRecursion(numberList.ToArray(), numberOfEntries);
+            foreach (var numberCombination in combinationsEnumerator)
             {
-                if (numberList[i] > targetSum)
+                var testSum = 0;
+                foreach (var currentNumber in numberCombination)
                 {
-                    continue;
+                    testSum += currentNumber;
+                    if (testSum > targetSum)
+                    {
+                        break;
+                    }    
                 }
-                for (int j = i + 1; j < numberList.Count; j++)
+                if (testSum == targetSum)
                 {
-                    if (numberList[j] > targetSum)
-                    {
-                        continue;
-                    }
-                    var currentSum = numberList[i] + numberList[j];
-                    if (currentSum == targetSum)
-                    {
-                        return new List<int>() { i, j };
-                    }
+                    return numberCombination.ToList();
                 }
             }
             return new List<int>();

@@ -23,8 +23,8 @@ namespace AdventOfCode2020Test.Challenges
             // 675
             // 1456
             // In this list, the two entries that sum to 2020 are 1721 and 299.
-            var testData = new List<Tuple<List<int>, int, List<int>>>() {
-                new Tuple<List<int>, int, List<int>>(
+            var testData = new List<Tuple<List<int>, int, int, List<int>>>() {
+                new Tuple<List<int>, int, int, List<int>>(
                     new List<int>()
                     {
                         1721,
@@ -34,14 +34,28 @@ namespace AdventOfCode2020Test.Challenges
                         675,
                         1456
                     },
+                    2,
                     2020,
-                    new List<int>() { 0, 3 })
+                    new List<int>() { 1721, 299 }),
+                new Tuple<List<int>, int, int, List<int>>(
+                    new List<int>()
+                    {
+                        1721,
+                        979,
+                        366,
+                        299,
+                        675,
+                        1456
+                    },
+                    3,
+                    2020,
+                    new List<int>() { 979, 366, 675 })
             };
 
             foreach (var testExample in testData)
             {
-                var calculatedEntries = Day01.GetNumberIndexesThatSumToTarget(testExample.Item1, testExample.Item2);
-                Assert.Equal(testExample.Item3, calculatedEntries);
+                var calculatedEntries = Day01.GetNumbersThatSumToTarget(testExample.Item1, testExample.Item2, testExample.Item3);
+                Assert.Equal(testExample.Item4, calculatedEntries);
             }
         }
 
@@ -59,29 +73,29 @@ namespace AdventOfCode2020Test.Challenges
             // 1456
             // In this list, the two entries that sum to 2020 are 1721 and 299.
             // Multiplying them together produces 1721 * 299 = 514579, so the correct answer is 514579.
-            var testData = new List<Tuple<List<int>, List<int>, int>>() {
-                new Tuple<List<int>, List<int>, int>(
-                    new List<int>()
-                    {
-                        1721,
-                        979,
-                        366,
-                        299,
-                        675,
-                        1456
-                    },
+            // Using the above example again, the three entries that sum to 2020 are 979, 366, and 675. Multiplying them together produces the answer, 241861950.
+            var testData = new List<Tuple<List<int>, int>>() {
+                new Tuple<List<int>, int>(
                     new List<int>()
                     { 
-                        0,
-                        3
+                        1721,
+                        299
                     },
-                    514579)
+                    514579),
+                new Tuple<List<int>, int>(
+                    new List<int>()
+                    {
+                        979,
+                        366,
+                        675
+                    },
+                    241861950)
             };
 
             foreach (var testExample in testData)
             {
-                var calculatedResult = Day01.GetProductOfFoundEntries(testExample.Item1, testExample.Item2);
-                Assert.Equal(testExample.Item3, calculatedResult);
+                var calculatedResult = Day01.GetProductOfFoundEntries(testExample.Item1);
+                Assert.Equal(testExample.Item2, calculatedResult);
             }
         }
 
