@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AdventOfCode2020.Challenges.Day01;
+using System;
 
 namespace AdventOfCode2020
 {
@@ -6,7 +7,9 @@ namespace AdventOfCode2020
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Console.WriteLine("---Welcome to erjicle's solutions to Advent of Code 2020!!---");
+            // Day 1
+            Console.WriteLine($"Day 1 - Part 1: {Day01.GetDay01Part01Answer()}");
         }
     }
 }
