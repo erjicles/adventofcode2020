@@ -16,11 +16,19 @@ namespace AdventOfCode2020.Challenges.Day02
             Policy = policy ?? throw new ArgumentNullException(nameof(policy));
         }
 
-        public bool IsValid { 
+        public bool IsValidOldJob { 
             get 
             {
-                return PasswordHelper.GetIsValidPassword(Password, Policy);
+                return PasswordHelper.GetIsValidPasswordOldJob(Password, Policy);
             } 
+        }
+
+        public bool IsValid
+        {
+            get
+            {
+                return PasswordHelper.GetIsValidPassword(Password, Policy);
+            }
         }
 
         // Equals, GetHashCode, and ToString() adapted from Microsoft example here:

@@ -30,7 +30,7 @@ namespace AdventOfCode2020.Challenges.Day02
             return null;
         }
 
-        public static bool GetIsValidPassword(string password, PasswordPolicy policy)
+        public static bool GetIsValidPasswordOldJob(string password, PasswordPolicy policy)
         {
             if (policy == null)
             {
@@ -43,6 +43,44 @@ namespace AdventOfCode2020.Challenges.Day02
                 return true;
             }
             return false;
+        }
+
+        public static bool GetIsValidPassword(string password, PasswordPolicy policy)
+        {
+            if (policy == null)
+            {
+                throw new ArgumentNullException(nameof(policy));
+            }
+            // According to the new rules, we interpret the MinOccurrencesRequiredPhrase
+            // and MaxOccurrencesRequiredPhrase variables as positions within the string.
+            // The required phrase must appear at exactly one of these positions, but not
+            // both. We use xor to test that at the end.
+            bool firstPositionContainsRequiredPhrase = false;
+            bool secondPositionContainsRequiredPhrase = false;
+            if (password.Length - policy.MinOccurrencesRequiredPhrase + 1 >= policy.RequiredPhrase.Length)
+            {
+                firstPositionContainsRequiredPhrase =
+                    string.Equals(
+                        policy.RequiredPhrase,
+                        password.Substring(policy.MinOccurrencesRequiredPhrase - 1, policy.RequiredPhrase.Length));
+            }
+            if (password.Length - policy.MaxOccurrencesRequiredPhrase + 1 >= policy.RequiredPhrase.Length)
+            {
+                secondPositionContainsRequiredPhrase =
+                    string.Equals(
+                        policy.RequiredPhrase,
+                        password.Substring(policy.MaxOccurrencesRequiredPhrase - 1, policy.RequiredPhrase.Length));
+            }
+            return firstPositionContainsRequiredPhrase ^ secondPositionContainsRequiredPhrase;
+        }
+
+        public static bool GetIsValidPasswordOldJob(PasswordWrapper passwordWrapper)
+        {
+            if (passwordWrapper == null)
+            {
+                throw new ArgumentNullException(nameof(passwordWrapper));
+            }
+            return GetIsValidPasswordOldJob(passwordWrapper.Password, passwordWrapper.Policy);
         }
 
         public static bool GetIsValidPassword(PasswordWrapper passwordWrapper)
