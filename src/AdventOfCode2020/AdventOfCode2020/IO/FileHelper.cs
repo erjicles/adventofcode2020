@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace AdventOfCode2019.IO
+namespace AdventOfCode2020.IO
 {
     public static class FileHelper
     {
