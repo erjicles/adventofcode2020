@@ -83,10 +83,66 @@ namespace AdventOfCode2020Test.Challenges
         }
 
         [Fact]
+        public void GetProductOfSlopeResultsTest()
+        {
+            // Determine the number of trees you would encounter if, for each of the following slopes, you start at the top-left corner and traverse the map all the way to the bottom:
+            // Right 1, down 1.
+            // Right 3, down 1. (This is the slope you already checked.)
+            // Right 5, down 1.
+            // Right 7, down 1.
+            // Right 1, down 2.
+            // In the above example, these slopes would find 2, 7, 3, 4, and 2 tree(s) respectively; multiplied together, these produce the answer 336.
+            var testData = new List<Tuple<List<string>, int, int, IList<Tuple<int, int>>, int>>() {
+                new Tuple<List<string>, int, int, IList<Tuple<int, int>>, int>(
+                    new List<string>()
+                    {
+                        "..##.......",
+                        "#...#...#..",
+                        ".#....#..#.",
+                        "..#.#...#.#",
+                        ".#...##..#.",
+                        "..#.##.....",
+                        ".#.#.#....#",
+                        ".#........#",
+                        "#.##...#...",
+                        "#...##....#",
+                        ".#..#...#.#",
+                    }, 0, 0,
+                    new List<Tuple<int, int>>()
+                    {
+                        new Tuple<int, int>(1, 1),
+                        new Tuple<int, int>(3, 1),
+                        new Tuple<int, int>(5, 1),
+                        new Tuple<int, int>(7, 1),
+                        new Tuple<int, int>(1, 2)
+                    },
+                    336)
+            };
+
+            foreach (var testExample in testData)
+            {
+                var slopeMap = SlopeMapHelper.ParseSlopeMap(testExample.Item1);
+                var startPoint = new GridPoint(testExample.Item2, testExample.Item3);
+                var slopes = testExample.Item4;
+                var slopeResults = SlopeMapHelper.GetNumberOfTreesForSlopes(startPoint, slopes, slopeMap);
+                int actual = SlopeMapHelper.GetProductOfSlopeResults(slopeResults);
+                Assert.Equal(testExample.Item5, actual);
+            }
+        }
+
+        [Fact]
         public void GetDay03Part01AnswerTest()
         {
             int expected = 171;
             int actual = Day03.GetDay03Part01Answer();
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void GetDay03Part02AnswerTest()
+        {
+            int expected = 1206576000;
+            int actual = Day03.GetDay03Part02Answer();
             Assert.Equal(expected, actual);
         }
     }

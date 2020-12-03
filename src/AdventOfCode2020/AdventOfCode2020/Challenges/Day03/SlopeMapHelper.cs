@@ -67,5 +67,29 @@ namespace AdventOfCode2020.Challenges.Day03
             }
             return numberOfTrees;
         }
+
+        public static IList<int> GetNumberOfTreesForSlopes(
+            GridPoint startPoint,
+            IList<Tuple<int, int>> slopes,
+            SlopeMap slopeMap)
+        {
+            var result = new List<int>();
+            foreach (var slope in slopes)
+            {
+                int numberOfTreesForSlope = GetNumberOfTreesForSlope(startPoint, slope.Item1, slope.Item2, slopeMap);
+                result.Add(numberOfTreesForSlope);
+            }
+            return result;
+        }
+
+        public static int GetProductOfSlopeResults(IList<int> slopeResults)
+        {
+            int result = 1;
+            foreach (var slopeResult in slopeResults)
+            {
+                result *= slopeResult;
+            }
+            return result;
+        }
     }
 }
