@@ -40,6 +40,25 @@ namespace AdventOfCode2020.Challenges.Day04
             return result;
         }
 
+        public static Passport ParsePassport(IList<string> inputLines)
+        {
+            var passportDefinition = new StringBuilder();
+            foreach (var inputLine in inputLines)
+            {
+                if (string.IsNullOrWhiteSpace(inputLine))
+                {
+                    continue;
+                }
+                if (passportDefinition.Length > 0)
+                {
+                    passportDefinition.Append(' ');
+                }
+                passportDefinition.Append(inputLine);
+            }
+            var result = ParsePassport(passportDefinition.ToString());
+            return result;
+        }
+
         public static Passport ParsePassport(string passportDefinition)
         {
             var matchByr = Regex.Match(passportDefinition, @"byr:([^\s]+)");
@@ -161,6 +180,113 @@ namespace AdventOfCode2020.Challenges.Day04
             {
                 return false;
             }
+
+            // If the policy doesn't validate fields, stop now
+            if (!passportPolicy.IsValidatingFields)
+            {
+                return true;
+            }
+
+            // Validate birth year
+            if (!string.IsNullOrWhiteSpace(passport.BirthYear))
+            {
+                var birthYear = int.Parse(passport.BirthYear);
+                if (birthYear < passportPolicy.BirthYearMin
+                    || birthYear > passportPolicy.BirthYearMax)
+                {
+                    return false;
+                }
+            }
+
+            // Validate issue year
+            if (!string.IsNullOrWhiteSpace(passport.IssueYear))
+            {
+                var issueYear = int.Parse(passport.IssueYear);
+                if (issueYear < passportPolicy.IssueYearMin
+                    || issueYear > passportPolicy.IssueYearMax)
+                {
+                    return false;
+                }
+            }
+
+            // Validate expiration year
+            if (!string.IsNullOrWhiteSpace(passport.ExpirationYear))
+            {
+                var expirationYear = int.Parse(passport.ExpirationYear);
+                if (expirationYear < passportPolicy.ExpirationYearMin
+                    || expirationYear > passportPolicy.ExpirationYearMax)
+                {
+                    return false;
+                }
+            }
+
+            // Validate height
+            if (!string.IsNullOrWhiteSpace(passport.Height))
+            {
+                // hgt(Height) - a number followed by either cm or in:
+                // If cm, the number must be at least 150 and at most 193.
+                // If in, the number must be at least 59 and at most 76.
+                var heightMatch = Regex.Match(passport.Height, passportPolicy.HeightPattern);
+                if (!heightMatch.Success)
+                {
+                    return false;
+                }
+                var heightNumber = int.Parse(heightMatch.Groups[1].Value);
+                var unit = heightMatch.Groups[2].Value;
+                if ("cm".Equals(unit))
+                {
+                    if (heightNumber < passportPolicy.HeightCmMin
+                        || heightNumber > passportPolicy.HeightCmMax)
+                    {
+                        return false;
+                    }
+                }
+                else if ("in".Equals(unit))
+                {
+                    if (heightNumber < passportPolicy.HeightInMin
+                        || heightNumber > passportPolicy.HeightInMax)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    throw new Exception($"Unrecognized unit: {unit}");
+                }
+            }
+
+            // Validate hair color
+            if (!string.IsNullOrWhiteSpace(passport.HairColor))
+            {
+                var hairColorMatch = Regex.Match(passport.HairColor, passportPolicy.HairColorPattern);
+                if (!hairColorMatch.Success)
+                {
+                    return false;
+                }
+            }
+
+            // Validate eye color
+            if (!string.IsNullOrWhiteSpace(passport.EyeColor))
+            {
+                var eyeColorMatch = Regex.Match(passport.EyeColor, passportPolicy.EyeColorPattern);
+                if (!eyeColorMatch.Success)
+                {
+                    return false;
+                }
+            }
+
+            // Validate passport id
+            if (!string.IsNullOrWhiteSpace(passport.PassportId))
+            {
+                var passportIdMatch = Regex.Match(passport.PassportId, passportPolicy.PassportIdPattern);
+                if (!passportIdMatch.Success)
+                {
+                    return false;
+                }
+            }
+
+            // Validate country id
+
             return true;
         }
 

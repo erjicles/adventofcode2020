@@ -47,5 +47,40 @@ namespace AdventOfCode2020.Challenges.Day04
         /// cid(Country ID) 
         /// </summary>
         public bool IsRequiredCountryId { get; set; } = true;
+
+        public bool IsValidatingFields { get; set; } = true;
+
+        // byr (Birth Year) - four digits; at least 1920 and at most 2002.
+        public int BirthYearMin { get; set; } = 1920;
+        public int BirthYearMax { get; set; } = 2002;
+
+        // iyr(Issue Year) - four digits; at least 2010 and at most 2020.
+        public int IssueYearMin { get; set; } = 2010;
+        public int IssueYearMax { get; set; } = 2020;
+
+        // eyr(Expiration Year) - four digits; at least 2020 and at most 2030.
+        public int ExpirationYearMin { get; set; } = 2020;
+        public int ExpirationYearMax { get; set; } = 2030;
+
+        // hgt(Height) - a number followed by either cm or in:
+        // If cm, the number must be at least 150 and at most 193.
+        // If in, the number must be at least 59 and at most 76.
+        public string HeightPattern { get; set; } = @"^(\d+)(cm|in)$";
+        public int HeightCmMin { get; set; } = 150;
+        public int HeightCmMax { get; set; } = 193;
+        public int HeightInMin { get; set; } = 59;
+        public int HeightInMax { get; set; } = 76;
+
+        // hcl(Hair Color) - a # followed by exactly six characters 0-9 or a-f.
+        public string HairColorPattern { get; set; } = @"^#[a-f0-9]{6}$";
+
+        // ecl(Eye Color) - exactly one of: amb blu brn gry grn hzl oth.
+        public string EyeColorPattern { get; set; } = @"^(amb|blu|brn|gry|grn|hzl|oth)$";
+
+        // pid(Passport ID) - a nine-digit number, including leading zeroes.
+        public string PassportIdPattern { get; set; } = @"^\d{9}$";
+
+        // cid(Country ID) - ignored, missing or not.
+        public string CountryIdPattern { get; set; } = @"^\d+$";
     }
 }
