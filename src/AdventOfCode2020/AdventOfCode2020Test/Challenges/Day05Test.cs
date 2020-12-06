@@ -41,5 +41,13 @@ namespace AdventOfCode2020Test.Challenges
             int actual = Day05.GetDay05Part01Answer();
             Assert.Equal(expected, actual);
         }
+
+        [Fact]
+        public void GetDay05Part02AnswerTest()
+        {
+            int expected = 649;
+            int actual = Day05.GetDay05Part02Answer();
+            Assert.Equal(expected, actual);
+        }
     }
 }
