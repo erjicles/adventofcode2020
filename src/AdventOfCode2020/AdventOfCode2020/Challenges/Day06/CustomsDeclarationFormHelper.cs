@@ -56,14 +56,26 @@ namespace AdventOfCode2020.Challenges.Day06
             return result;
         }
 
-        public static int GetNumberOfUniqueAnswersInGroup(CustomsDeclarationFormGroup group)
+        public static HashSet<string> GetUniqueAnswersInGroup(CustomsDeclarationFormGroup group)
         {
             var uniqueAnswers = new HashSet<string>();
             foreach (var form in group.CustomsDeclarationForms)
             {
                 uniqueAnswers.UnionWith(form.Answers);
             }
-            return uniqueAnswers.Count;
+            return uniqueAnswers;
+        }
+
+        public static HashSet<string> GetUnanimousAnswersInGroup(CustomsDeclarationFormGroup group)
+        {
+            var unanimousAnswers = group.CustomsDeclarationForms.Count > 0 ? 
+                group.CustomsDeclarationForms[0].Answers.ToHashSet() 
+                : new HashSet<string>();
+            foreach (var form in group.CustomsDeclarationForms)
+            {
+                unanimousAnswers.IntersectWith(form.Answers);
+            }
+            return unanimousAnswers;
         }
     }
 }
