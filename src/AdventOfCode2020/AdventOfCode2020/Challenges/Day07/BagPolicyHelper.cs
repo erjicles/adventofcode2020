@@ -46,6 +46,37 @@ namespace AdventOfCode2020.Challenges.Day07
             return false;
         }
 
+        public static int GetNumberOfBagsRequiredInsideBag(IList<BagPolicy> bagPolicies, string outerBagType)
+        {
+            var result = 0;
+            var bagPolicyDictionary = bagPolicies.ToDictionary(bp => bp.BagType);
+            var policiesToCheck = new Stack<BagPolicy>();
+            var initialPolicy = bagPolicyDictionary[outerBagType];
+            foreach (var requirement in initialPolicy.ContentsRequirements)
+            {
+                var policyForRequirement = bagPolicyDictionary[requirement.Item1];
+                for (int i = 0; i < requirement.Item2; i++)
+                {
+                    policiesToCheck.Push(policyForRequirement);
+                }
+                result += requirement.Item2;
+            }
+            while (policiesToCheck.Count > 0)
+            {
+                var currentPolicy = policiesToCheck.Pop();
+                foreach (var contentRequirement in currentPolicy.ContentsRequirements)
+                {
+                    var policyForRequirement = bagPolicyDictionary[contentRequirement.Item1];
+                    for (int i = 0; i < contentRequirement.Item2; i++)
+                    {
+                        policiesToCheck.Push(policyForRequirement);
+                    }
+                    result += contentRequirement.Item2;
+                }
+            }
+            return result;
+        }
+
         public static BagPolicy ParseBagPolicy(string bagPolicyDefinition)
         {
             var match = Regex.Match(bagPolicyDefinition, BagPolicyPattern);
