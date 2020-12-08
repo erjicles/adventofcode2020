@@ -34,15 +34,65 @@ namespace AdventOfCode2020.Challenges.Day08
             return result;
         }
 
-        public static int RunProgram(BootCode bootCode)
+        public static bool TryFindFixedProgram(BootCode originalBootCode, out BootCode fixedBootCode, out int accumulator)
         {
-            var accumulator = 0;
+            fixedBootCode = null;
+            accumulator = 0;
+            var possiblyFixedBootCodes = GetPossiblyFixedBootCodes(originalBootCode);
+            foreach (var possiblyFixedBootCode in possiblyFixedBootCodes)
+            {
+                var isSuccessfulTermination = TryRunProgram(possiblyFixedBootCode, out int possibleAccumulator);
+                if (isSuccessfulTermination)
+                {
+                    fixedBootCode = possiblyFixedBootCode;
+                    accumulator = possibleAccumulator;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static IList<BootCode> GetPossiblyFixedBootCodes(BootCode bootCode)
+        {
+            var result = new List<BootCode>();
+            for (int i = 0; i < bootCode.Instructions.Count; i++)
+            {
+                var currentInstruction = bootCode.Instructions[i];
+                if ("jmp".Equals(currentInstruction.Instruction)
+                    || "nop".Equals(currentInstruction.Instruction))
+                {
+                    var instructionsCopy = bootCode.Instructions.ToList();
+                    var newInstruction = "jmp".Equals(currentInstruction.Instruction) ? "nop" : "jmp";
+                    instructionsCopy[i] = new BootCodeInstruction(newInstruction, currentInstruction.Value);
+                    var newBootCode = new BootCode(instructionsCopy);
+                    result.Add(newBootCode);
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Runs the given boot code program.
+        /// Returns true if the program terminates correctly.
+        /// Otherwise, returns false.
+        /// </summary>
+        /// <param name="bootCode"></param>
+        /// <param name="accumulator"></param>
+        /// <returns></returns>
+        public static bool TryRunProgram(BootCode bootCode, out int accumulator)
+        {
+            accumulator = 0;
             var instructionsExecuted = new HashSet<int>();
             var currentInstructionIndex = 0;
             while (!instructionsExecuted.Contains(currentInstructionIndex))
             {
                 instructionsExecuted.Add(currentInstructionIndex);
-                if (currentInstructionIndex < 0 || currentInstructionIndex >= bootCode.Instructions.Count)
+                if (currentInstructionIndex == bootCode.Instructions.Count)
+                {
+                    // Terminate when trying to execute the instruction immediately after the last one
+                    return true;
+                }
+                if (currentInstructionIndex < 0 || currentInstructionIndex > bootCode.Instructions.Count)
                 {
                     throw new Exception($"Instruction index out of range - Current index: {currentInstructionIndex}, # Instructions: {bootCode.Instructions.Count}");
                 }
@@ -66,7 +116,7 @@ namespace AdventOfCode2020.Challenges.Day08
                 }
             }
 
-            return accumulator;
+            return false;
         }
     }
 }

@@ -11,7 +11,7 @@ namespace AdventOfCode2020Test.Challenges
     public class Day08Test
     {
         [Fact]
-        public void RunProgramTest()
+        public void TryRunProgramTest()
         {
             // For example, consider the following program:
             // nop +0
@@ -65,7 +65,67 @@ namespace AdventOfCode2020Test.Challenges
             foreach (var testExample in testData)
             {
                 var bootCode = BootCodeHelper.ParseInputLines(testExample.Item1);
-                var actual = BootCodeHelper.RunProgram(bootCode);
+                BootCodeHelper.TryRunProgram(bootCode, out int actual);
+                Assert.Equal(testExample.Item2, actual);
+            }
+        }
+
+        [Fact]
+        public void TryFindFixedBootCodeTest()
+        {
+            // For example, consider the same program from above:
+            // nop + 0
+            // acc + 1
+            // jmp + 4
+            // acc + 3
+            // jmp - 3
+            // acc - 99
+            // acc + 1
+            // jmp - 4
+            // acc + 6
+            // If you change the first instruction from nop +0 to jmp +0, it 
+            // would create a single - instruction infinite loop, never leaving 
+            // that instruction.If you change almost any of the jmp 
+            // instructions, the program will still eventually find another 
+            // jmp instruction and loop forever.
+            // However, if you change the second - to - last instruction
+            // (from jmp -4 to nop - 4), the program terminates! The 
+            // instructions are visited in this order:
+            // nop + 0 | 1
+            // acc + 1 | 2
+            // jmp + 4 | 3
+            // acc + 3 |
+            // jmp - 3 |
+            // acc - 99 |
+            // acc + 1 | 4
+            // nop - 4 | 5
+            // acc + 6 | 6
+            // After the last instruction(acc +6), the program terminates by 
+            // attempting to run the instruction below the last instruction in 
+            // the file. With this change, after the program terminates, the 
+            // accumulator contains the value 8(acc + 1, acc + 1, acc + 6).
+            var testData = new List<Tuple<IList<string>, int>>()
+            {
+                new Tuple<IList<string>, int>(
+                    new List<string>()
+                    {
+                        "nop +0",
+                        "acc +1",
+                        "jmp +4",
+                        "acc +3",
+                        "jmp -3",
+                        "acc -99",
+                        "acc +1",
+                        "jmp -4",
+                        "acc +6"
+                    }, 8)
+            };
+
+            foreach (var testExample in testData)
+            {
+                var bootCode = BootCodeHelper.ParseInputLines(testExample.Item1);
+                var foundSuccessfulProgram = BootCodeHelper.TryFindFixedProgram(bootCode, out _, out int actual);
+                Assert.True(foundSuccessfulProgram);
                 Assert.Equal(testExample.Item2, actual);
             }
         }
@@ -75,6 +135,14 @@ namespace AdventOfCode2020Test.Challenges
         {
             int expected = 2014;
             int actual = Day08.GetDay08Part01Answer();
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void GetDay08Part02AnswerTest()
+        {
+            int expected = 2251;
+            int actual = Day08.GetDay08Part02Answer();
             Assert.Equal(expected, actual);
         }
     }
