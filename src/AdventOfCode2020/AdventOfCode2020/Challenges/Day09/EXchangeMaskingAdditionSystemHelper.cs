@@ -30,7 +30,7 @@ namespace AdventOfCode2020.Challenges.Day09
             return result;
         }
 
-        public static bool GetFirstInvalidNumber(
+        public static bool TryGetFirstInvalidNumber(
             IList<BigInteger> inputNumbers, 
             int preambleSize, 
             out BigInteger firstInvalidNumber)
@@ -56,6 +56,46 @@ namespace AdventOfCode2020.Challenges.Day09
                 }
             }
             return false;
+        }
+
+        public static bool TryGetContiguousSetOfAtLeastTwoNumbersThatSumToTarget(IList<BigInteger> inputNumbers, BigInteger targetSum, out IList<BigInteger> foundSet)
+        {
+            foundSet = null;
+            for (int runLength = 2; runLength < inputNumbers.Count; runLength++)
+            {
+                for (int startIndex = 0; startIndex < inputNumbers.Count - runLength; startIndex++)
+                {
+                    var contiguousSetOfNumbers = new List<BigInteger>();
+                    BigInteger contiguousSetSum = 0;
+                    for (int indexOffset = 0; indexOffset < runLength; indexOffset++)
+                    {
+                        var nextNumber = inputNumbers[startIndex + indexOffset];
+                        contiguousSetOfNumbers.Add(nextNumber);
+                        contiguousSetSum += nextNumber;
+                    }
+                    if (contiguousSetSum == targetSum)
+                    {
+                        foundSet = contiguousSetOfNumbers;
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public static bool TryGetEncryptionWeakness(IList<BigInteger> inputNumbers, int preambleSize, out BigInteger encryptionWeakness)
+        {
+            encryptionWeakness = 0;
+            if (!EXchangeMaskingAdditionSystemHelper.TryGetFirstInvalidNumber(inputNumbers, preambleSize, out BigInteger firstInvalidNumber))
+            {
+                return false;
+            }
+            if (!EXchangeMaskingAdditionSystemHelper.TryGetContiguousSetOfAtLeastTwoNumbersThatSumToTarget(inputNumbers, firstInvalidNumber, out IList<BigInteger> foundSet))
+            {
+                return false;
+            }
+            encryptionWeakness = foundSet.Min() + foundSet.Max();
+            return true;
         }
     }
 }
