@@ -9,19 +9,23 @@ namespace AdventOfCode2020.Challenges.Day11
 {
     public static class WaitingAreaHelper
     {
-        public static WaitingArea EvolveWaitingAreaUntilSteadyState(WaitingArea initialWaitingArea)
+        public static WaitingArea EvolveWaitingAreaUntilSteadyState(
+            WaitingArea initialWaitingArea,
+            EvolutionRules evolutionRules)
         {
-            var previousState = initialWaitingArea;
-            var nextState = GetNextWaitingAreaState(previousState);
-            while (!previousState.Equals(nextState))
+            WaitingArea previousState = null;
+            var nextState = initialWaitingArea;
+            while (!nextState.Equals(previousState))
             {
                 previousState = nextState;
-                nextState = GetNextWaitingAreaState(previousState);
+                nextState = GetNextWaitingAreaState(previousState, evolutionRules);
             }
             return previousState;
         }
         
-        public static WaitingArea GetNextWaitingAreaState(WaitingArea waitingArea)
+        public static WaitingArea GetNextWaitingAreaState(
+            WaitingArea waitingArea,
+            EvolutionRules evolutionRules)
         {
             // For each cell:
             // If a seat is empty (L) and there are no occupied seats adjacent to it, the seat becomes occupied.
@@ -44,12 +48,12 @@ namespace AdventOfCode2020.Challenges.Day11
                         updatedGridCellTypes.Add(point, cellType);
                         continue;
                     }
-                    int numberOfAdjacentOccupiedSeats = GetNumberOfAdjacentOccupiedSeats(waitingArea, point);
+                    int numberOfAdjacentOccupiedSeats = GetNumberOfSeenOccupiedSeats(waitingArea, point, evolutionRules.OnlyConsiderAdjacentCells);
                     if (CellType.ChairOpen.Equals(cellType) && numberOfAdjacentOccupiedSeats == 0)
                     {
                         cellType = CellType.ChairOccupied;
                     }
-                    else if (CellType.ChairOccupied.Equals(cellType) && numberOfAdjacentOccupiedSeats >= 4)
+                    else if (CellType.ChairOccupied.Equals(cellType) && numberOfAdjacentOccupiedSeats >= evolutionRules.MinimumNumberOfSeenOccupiedSeatsToFlipToEmpty)
                     {
                         cellType = CellType.ChairOpen;
                     }
@@ -60,27 +64,42 @@ namespace AdventOfCode2020.Challenges.Day11
             return result;
         }
 
-        public static int GetNumberOfAdjacentOccupiedSeats(WaitingArea waitingArea, GridPoint point)
+        public static int GetNumberOfSeenOccupiedSeats(
+            WaitingArea waitingArea, 
+            GridPoint point,
+            bool onlyConsiderAdjacentCells)
         {
-            // Get the number of adjacent occupied seats
             int result = 0;
-            var adjacentPoints = new List<GridPoint>()
-                    {
-                        new GridPoint(point.X - 1, point.Y - 1),
-                        new GridPoint(point.X, point.Y - 1),
-                        new GridPoint(point.X + 1, point.Y - 1),
-                        new GridPoint(point.X - 1, point.Y),
-                        new GridPoint(point.X + 1, point.Y),
-                        new GridPoint(point.X - 1, point.Y + 1),
-                        new GridPoint(point.X, point.Y + 1),
-                        new GridPoint(point.X + 1, point.Y + 1)
-                    };
-            foreach (var adjacentPoint in adjacentPoints)
+            // Find seen seats along 8 directional rays
+            var raySlopes = new List<Tuple<int, int>>()
             {
-                if (waitingArea.GridCellTypes.ContainsKey(adjacentPoint)
-                    && CellType.ChairOccupied.Equals(waitingArea.GridCellTypes[adjacentPoint]))
+                new Tuple<int, int>(-1, -1),
+                new Tuple<int, int>(0, -1),
+                new Tuple<int, int>(1, -1),
+                new Tuple<int, int>(-1, 0),
+                new Tuple<int, int>(1, 0),
+                new Tuple<int, int>(-1, 1),
+                new Tuple<int, int>(0, 1),
+                new Tuple<int, int>(1, 1)
+            };
+
+            foreach (var raySlope in raySlopes)
+            {
+                var nextPoint = new GridPoint(point.X + raySlope.Item1, point.Y + raySlope.Item2);
+                while (waitingArea.GridCellTypes.ContainsKey(nextPoint))
                 {
-                    result++;
+                    if (CellType.ChairOccupied.Equals(waitingArea.GridCellTypes[nextPoint]))
+                    {
+                        result++;
+                        break;
+                    }
+                    else if (CellType.ChairOpen.Equals(waitingArea.GridCellTypes[nextPoint]))
+                    {
+                        break;
+                    }
+                    if (onlyConsiderAdjacentCells)
+                        break;
+                    nextPoint = new GridPoint(nextPoint.X + raySlope.Item1, nextPoint.Y + raySlope.Item2);
                 }
             }
             return result;
