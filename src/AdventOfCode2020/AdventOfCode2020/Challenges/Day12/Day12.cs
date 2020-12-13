@@ -21,6 +21,16 @@ namespace AdventOfCode2020.Challenges.Day12
             return result;
         }
 
+        public static int GetDay12Part02Answer()
+        {
+            // Answer: 52069
+            var instructions = GetDay12Input();
+            var initialState = new FerryState(GridPoint.Origin, new GridPoint(10, 1));
+            var ferryPath = FerryHelper.GetFerryPathWithWaypoint(instructions, initialState);
+            var result = GridPoint.GetManhattanDistance(initialState.Position, ferryPath.Last().Position);
+            return result;
+        }
+
         private static IList<FerryMovementInstruction> GetDay12Input()
         {
             string filePath = Path.Combine(Directory.GetCurrentDirectory(), "InputData", FILE_NAME);

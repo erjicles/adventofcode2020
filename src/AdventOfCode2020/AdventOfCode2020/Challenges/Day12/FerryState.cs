@@ -11,6 +11,7 @@ namespace AdventOfCode2020.Challenges.Day12
     {
         public GridPoint Position { get; private set; } = GridPoint.Origin;
         public FerryMovementDirection Heading { get; private set; } = FerryMovementDirection.East;
+        public GridPoint WaypointPosition { get; private set; } = GridPoint.Origin;
         public FerryState()
         {
 
@@ -20,6 +21,12 @@ namespace AdventOfCode2020.Challenges.Day12
         {
             Position = position;
             Heading = heading;
+        }
+
+        public FerryState(GridPoint position, GridPoint waypointPosition)
+        {
+            Position = position;
+            WaypointPosition = waypointPosition;
         }
     }
 }
