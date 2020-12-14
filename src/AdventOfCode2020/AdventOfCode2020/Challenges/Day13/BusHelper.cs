@@ -9,62 +9,65 @@ namespace AdventOfCode2020.Challenges.Day13
 {
     public static class BusHelper
     {
-        public static BigInteger GetPart2Answer(IList<int> wee)
+        public static BigInteger GetEarliestValidTimestamp(IList<int> busIds)
         {
+            BigInteger result = -1;
             BigInteger lcm = -1;
-            BigInteger time = -1;
-            int index = 0;
+            
+            int busIdIndex = 0;
             while (true)
             {
-                BigInteger id = wee[index];
-                if (id == -1)
+                int currentBusId = busIds[busIdIndex];
+                if (currentBusId == -1)
                 {
-                    index++;
+                    busIdIndex++;
                     continue;
                 }
 
+                // Handle the first bus
                 if (lcm == -1)
                 {
-                    lcm = id;
-                    time = id - index;
-                    index++;
+                    lcm = currentBusId;
+                    result = currentBusId - busIdIndex;
+                    busIdIndex++;
                     continue;
                 }
 
-                if ((time + index) % id == 0)
+                // Check if the timestamp works for this bus
+                if ((result + busIdIndex) % currentBusId == 0)
                 {
-                    index++;
-                    if (index >= wee.Count())
+                    busIdIndex++;
+                    if (busIdIndex >= busIds.Count)
                     {
                         break;
                     }
 
-                    lcm *= id;
+                    lcm *= currentBusId;
                     continue;
                 }
 
-                time += lcm;
+                result += lcm;
             }
 
-            return time;
+            return result;
         }
 
-        public static Tuple<int, int> GetBusId(Tuple<int, IList<int>> wee)
+        public static Tuple<int, int> GetBusIdWithLowestWaitTime(Tuple<int, IList<int>> busData)
         {
-            var foo = new List<Tuple<int, int>>();
-            foreach (var busId in wee.Item2)
+            var waitTimesByBusId = new List<Tuple<int, int>>();
+            foreach (var busId in busData.Item2)
             {
                 if (busId == -1)
                     continue;
-                var rem = wee.Item1 % busId;
+                var timeOffset = busData.Item1 % busId;
                 var waitTime = 0;
-                if (rem > 0)
+                if (timeOffset > 0)
                 {
-                    waitTime = busId - rem;
+                    waitTime = busId - timeOffset;
                 }
-                foo.Add(new Tuple<int, int>(busId, waitTime));
+                waitTimesByBusId.Add(new Tuple<int, int>(busId, waitTime));
             }
-            var result = foo.OrderBy(p => p.Item2).First();
+            var result = waitTimesByBusId.OrderBy(p => p.Item2).First();
             return result;
         }
 
