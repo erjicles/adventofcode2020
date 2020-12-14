@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,6 +18,14 @@ namespace AdventOfCode2020.Challenges.Day13
             var foo = GetDay13Input();
             var bar = BusHelper.GetBusId(foo);
             var result = bar.Item1 * bar.Item2;
+            return result;
+        }
+
+        public static BigInteger GetDay13Part02Answer()
+        {
+            // Answer: 3215
+            var foo = GetDay13Input();
+            var result = BusHelper.GetPart2Answer(foo.Item2);
             return result;
         }
 
