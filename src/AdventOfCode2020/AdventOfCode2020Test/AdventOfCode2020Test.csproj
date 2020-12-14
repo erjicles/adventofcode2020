@@ -23,4 +23,10 @@
     <ProjectReference Include="..\AdventOfCode2020\AdventOfCode2020.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Challenges\Day14Test.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+  </ItemGroup>
+
 </Project>
