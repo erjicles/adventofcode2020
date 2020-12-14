@@ -66,5 +66,36 @@ namespace AdventOfCode2020.MathHelpers
                 yield return result;
             }
         }
+
+        public static List<List<T>> GetAllPossibleOutcomesOfNExperiments<T>(T[] possibleOutcomes, int NTries)
+        {
+            var result = new List<List<T>>();
+            for (int experimentNUmber = 0; experimentNUmber < NTries; experimentNUmber++)
+            {
+                var tempPartialResults = new List<List<T>>();
+                foreach (var possibleOutcome in possibleOutcomes)
+                {
+                    if (result.Count == 0)
+                    {
+                        var newPartialResult = new List<T>();
+                        newPartialResult.Add(possibleOutcome);
+                        tempPartialResults.Add(newPartialResult);
+                    }
+                    else
+                    {
+                        foreach (var partialResult in result)
+                        {
+                            var extendedPartialResult = partialResult.ToList();
+                            extendedPartialResult.Add(possibleOutcome);
+                            tempPartialResults.Add(extendedPartialResult);
+                        }
+                    }
+                    
+                }
+                
+                result = tempPartialResults;
+            }
+            return result;
+        }
     }
 }
