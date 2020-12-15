@@ -47,6 +47,16 @@ namespace AdventOfCode2020Test.Challenges
             // Given the starting numbers 2,3,1, the 2020th number spoken is 78.
             // Given the starting numbers 3,2,1, the 2020th number spoken is 438.
             // Given the starting numbers 3,1,2, the 2020th number spoken is 1836.
+            // Impressed, the Elves issue you a challenge: determine the 
+            // 30000000th number spoken. For example, given the same starting 
+            // numbers as above:
+            // Given 0,3,6, the 30000000th number spoken is 175594.
+            // Given 1,3,2, the 30000000th number spoken is 2578.
+            // Given 2,1,3, the 30000000th number spoken is 3544142.
+            // Given 1,2,3, the 30000000th number spoken is 261214.
+            // Given 2,3,1, the 30000000th number spoken is 6895259.
+            // Given 3,2,1, the 30000000th number spoken is 18.
+            // Given 3,1,2, the 30000000th number spoken is 362.
             var testData = new List<Tuple<string, int, int>>()
             {
                 new Tuple<string, int, int>("0,3,6", 2020, 436),
@@ -56,6 +66,13 @@ namespace AdventOfCode2020Test.Challenges
                 new Tuple<string, int, int>("2,3,1", 2020, 78),
                 new Tuple<string, int, int>("3,2,1", 2020, 438),
                 new Tuple<string, int, int>("3,1,2", 2020, 1836),
+                //new Tuple<string, int, int>("0,3,6", 30000000, 175594),
+                //new Tuple<string, int, int>("1,3,2", 30000000, 2578),
+                //new Tuple<string, int, int>("2,1,3", 30000000, 3544142),
+                //new Tuple<string, int, int>("1,2,3", 30000000, 261214),
+                //new Tuple<string, int, int>("2,3,1", 30000000, 6895259),
+                //new Tuple<string, int, int>("3,2,1", 30000000, 18),
+                //new Tuple<string, int, int>("3,1,2", 30000000, 362),
             };
 
             foreach (var testExample in testData)
@@ -71,6 +88,14 @@ namespace AdventOfCode2020Test.Challenges
         {
             int expected = 1428;
             int actual = Day15.GetDay15Part01Answer();
+            Assert.Equal(expected, actual);
+        }
+        
+        [Fact]
+        public void GetDay15Part02AnswerTest()
+        {
+            int expected = 3718541;
+            int actual = Day15.GetDay15Part02Answer();
             Assert.Equal(expected, actual);
         }
     }
