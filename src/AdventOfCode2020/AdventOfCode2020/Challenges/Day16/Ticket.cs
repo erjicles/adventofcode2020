@@ -13,5 +13,11 @@ namespace AdventOfCode2020.Challenges.Day16
         {
             FieldValues = fieldValues;
         }
+
+        public override string ToString()
+        {
+            var result = string.Join(",", FieldValues);
+            return result.ToString();
+        }
     }
 }

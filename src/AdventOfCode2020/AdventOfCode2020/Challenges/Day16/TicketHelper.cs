@@ -9,11 +9,102 @@ namespace AdventOfCode2020.Challenges.Day16
 {
     public static class TicketHelper
     {
+        public static Dictionary<string, int> GetFieldIndexes(TicketData ticketData)
+        {
+            var result = new Dictionary<string, int>();
+            var validTickets = GetNearbyTicketsWithNoInvalidValues(ticketData);
+            var indexTicketFieldCandidates = new Dictionary<int, IList<TicketField>>();
+            for (int fieldIndex = 0; fieldIndex < ticketData.TicketFields.Count; fieldIndex++)
+            {
+                var possibleTicketFields = GetTicketFieldsThatWorkForIndex(
+                    fieldIndex, 
+                    validTickets, 
+                    ticketData.TicketFields);
+                indexTicketFieldCandidates[fieldIndex] = possibleTicketFields;
+            }
+            while (indexTicketFieldCandidates.Count > 0)
+            {
+                var currentCandidate = indexTicketFieldCandidates
+                    .OrderBy(kvp => kvp.Value.Count)
+                    .First();
+                if (currentCandidate.Value.Count != 1)
+                {
+                    throw new Exception("Non-deterministic candidate found");
+                }
+                var fieldIndex = currentCandidate.Key;
+                var ticketField = currentCandidate.Value[0];
+                result[ticketField.Name] = fieldIndex;
+                indexTicketFieldCandidates.Remove(fieldIndex);
+                foreach (var kvp in indexTicketFieldCandidates)
+                {
+                    kvp.Value.Remove(ticketField);
+                }
+                foreach (var kvp in indexTicketFieldCandidates)
+                {
+                    if (kvp.Value.Count == 0)
+                        indexTicketFieldCandidates.Remove(kvp.Key);
+                }
+            }
+            
+            return result;
+        }
+
+        public static IList<TicketField>  GetTicketFieldsThatWorkForIndex(
+            int fieldIndex,
+            IList<Ticket> tickets, 
+            IList<TicketField> ticketFields)
+        {
+            var result = new List<TicketField>();
+            foreach (var ticketField in ticketFields)
+            {
+                bool isTicketFieldValidForIndex = true;
+                foreach (var ticket in tickets)
+                {
+                    var value = ticket.FieldValues[fieldIndex];
+                    var isValid = GetIsValidValue(value, ticketField);
+                    if (!isValid)
+                    {
+                        isTicketFieldValidForIndex = false;
+                        break;
+                    }
+                }
+                if (isTicketFieldValidForIndex)
+                {
+                    result.Add(ticketField);
+                }
+            }
+            return result;
+        }
+
+        public static IList<Ticket> GetNearbyTicketsWithNoInvalidValues(TicketData ticketData)
+        {
+            var result = new List<Ticket>();
+            foreach (var nearbyTicket in ticketData.NearbyTickets)
+            {
+                bool isInvalidTicket = false;
+                foreach (var value in nearbyTicket.FieldValues)
+                {
+                    var isValid = GetIsValidValueForAnyField(value, ticketData.TicketFields);
+                    if (!isValid)
+                    {
+                        isInvalidTicket = true;
+                        break;
+                    }
+                }
+                if (!isInvalidTicket)
+                {
+                    result.Add(nearbyTicket);
+                }
+            }
+            return result;
+        }
+
         public static int GetTicketScanningErrorRateForInvalidValues(IList<int> invalidValues)
         {
             var result = invalidValues.Sum();
             return result;
         }
+
         public static IList<int> GetInvalidNearbyTicketValuesForAllFields(TicketData ticketData)
         {
             var result = new List<int>();
@@ -35,11 +126,19 @@ namespace AdventOfCode2020.Challenges.Day16
         {
             foreach (var ticketField in ticketFields)
             {
-                foreach (var range in ticketField.Ranges)
-                {
-                    if (value >= range.Item1 && value <= range.Item2)
-                        return true;
-                }
+                var isValid = GetIsValidValue(value, ticketField);
+                if (isValid)
+                    return true;
+            }
+            return false;
+        }
+
+        public static bool GetIsValidValue(int value, TicketField ticketField)
+        {
+            foreach (var range in ticketField.Ranges)
+            {
+                if (value >= range.Item1 && value <= range.Item2)
+                    return true;
             }
             return false;
         }

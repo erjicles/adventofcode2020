@@ -70,6 +70,7 @@ namespace AdventOfCode2020
             Console.WriteLine($"Day 15 - Part 2: {Day15.GetDay15Part02Answer()}");
             // Day 16
             Console.WriteLine($"Day 16 - Part 1: {Day16.GetDay16Part01Answer()}");
+            Console.WriteLine($"Day 16 - Part 2: {Day16.GetDay16Part02Answer()}");
         }
     }
 }

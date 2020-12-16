@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
@@ -10,6 +11,59 @@ namespace AdventOfCode2020Test.Challenges
 {
     public class Day16Test
     {
+        [Fact]
+        public void GetFieldIndexesTest()
+        {
+            // For example, suppose you have the following notes:
+            //
+            // class: 0-1 or 4-19
+            // row: 0-5 or 8-19
+            // seat: 0-13 or 16-19
+            //
+            // your ticket:
+            // 11,12,13
+            //
+            // nearby tickets:
+            // 3,9,18
+            // 15,1,5
+            // 5,14,9
+            //
+            // Based on the nearby tickets in the above example, the first 
+            // position must be row, the second position must be class, and 
+            // the third position must be seat; you can conclude that in your 
+            // ticket, class is 12, row is 11, and seat is 13.
+            var testData = new List<Tuple<IList<string>, IDictionary<string, int>>>()
+            {
+                new Tuple<IList<string>, IDictionary<string, int>>(
+                    new List<string>()
+                    {
+                        "class: 0-1 or 4-19",
+                        "row: 0-5 or 8-19",
+                        "seat: 0-13 or 16-19",
+                        "",
+                        "your ticket:",
+                        "11,12,13",
+                        "",
+                        "nearby tickets:",
+                        "3,9,18",
+                        "15,1,5",
+                        "5,14,9"
+                    }, new Dictionary<string, int>()
+                    {
+                        { "row", 0 },
+                        { "class", 1 },
+                        { "seat", 2 }
+                    })
+            };
+
+            foreach (var testExample in testData)
+            {
+                var ticketData = TicketHelper.ParseInputLines(testExample.Item1);
+                var actual = TicketHelper.GetFieldIndexes(ticketData);
+                Assert.Equal(testExample.Item2, actual);
+            }
+        }
+
         [Fact]
         public void GetTicketScanningErrorRateForInvalidValuesTest()
         {
@@ -284,6 +338,14 @@ namespace AdventOfCode2020Test.Challenges
         {
             int expected = 29878;
             int actual = Day16.GetDay16Part01Answer();
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void GetDay16Part02AnswerTest()
+        {
+            BigInteger expected = 855438643439;
+            BigInteger actual = Day16.GetDay16Part02Answer();
             Assert.Equal(expected, actual);
         }
     }
