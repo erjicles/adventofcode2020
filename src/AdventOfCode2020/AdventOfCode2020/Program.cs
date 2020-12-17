@@ -14,6 +14,7 @@ using AdventOfCode2020.Challenges.Day13;
 using AdventOfCode2020.Challenges.Day14;
 using AdventOfCode2020.Challenges.Day15;
 using AdventOfCode2020.Challenges.Day16;
+using AdventOfCode2020.Challenges.Day17;
 using System;
 
 namespace AdventOfCode2020
@@ -71,6 +72,8 @@ namespace AdventOfCode2020
             // Day 16
             Console.WriteLine($"Day 16 - Part 1: {Day16.GetDay16Part01Answer()}");
             Console.WriteLine($"Day 16 - Part 2: {Day16.GetDay16Part02Answer()}");
+            // Day 17
+            Console.WriteLine($"Day 17 - Part 1: {Day17.GetDay17Part01Answer()}");
         }
     }
 }

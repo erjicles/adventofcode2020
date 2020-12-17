@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AdventOfCode2020.MathHelpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -584,6 +585,63 @@ namespace AdventOfCode2020.Grid
                     pointValues[pointCoordinateIndex] = value;
                 }
                 var point = new GridPoint3D(pointValues[0], pointValues[1], pointValues[2]);
+                result.Add(point);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Get all points adjacent to a given point.
+        /// Adjacent is defined as all points where any of their X, Y, or Z
+        /// coordinates are within 1 of the central point's respective coordinate.
+        /// </summary>
+        /// <param name="centerPoint"></param>
+        /// <returns></returns>
+        public static IList<GridPoint3D> GetAdjacentPoints(GridPoint3D centerPoint)
+        {
+            var result = new List<GridPoint3D>();
+            var coordinateDeltas = new List<int[]>()
+            {
+                new int[3]{ -1, -1, -1 },
+                new int[3]{ 0, -1, -1 },
+                new int[3]{ 1, -1, -1 },
+                new int[3]{ -1, 0, -1 },
+                new int[3]{ 0, 0, -1 },
+                new int[3]{ 1, 0, -1 },
+                new int[3]{ -1, 1, -1 },
+                new int[3]{ 0, 1, -1 },
+                new int[3]{ 1, 1, -1 },
+
+                new int[3]{ -1, -1, 0 },
+                new int[3]{ 0, -1, 0 },
+                new int[3]{ 1, -1, 0 },
+                new int[3]{ -1, 0, 0 },
+                //new int[3]{ 0, 0, 0 },
+                new int[3]{ 1, 0, 0 },
+                new int[3]{ -1, 1, 0 },
+                new int[3]{ 0, 1, 0 },
+                new int[3]{ 1, 1, 0 },
+
+                new int[3]{ -1, -1, 1 },
+                new int[3]{ 0, -1, 1 },
+                new int[3]{ 1, -1, 1 },
+                new int[3]{ -1, 0, 1 },
+                new int[3]{ 0, 0, 1 },
+                new int[3]{ 1, 0, 1 },
+                new int[3]{ -1, 1, 1 },
+                new int[3]{ 0, 1, 1 },
+                new int[3]{ 1, 1, 1 },
+            };
+            // Commented out for optimization purposes
+            // CombinationsHelper.GetAllPossibleOutcomesOfNExperiments(new int[3] { -1, 0, 1 }, 3);
+            foreach (var delta in coordinateDeltas)
+            {
+                if (delta[0] == 0 && delta[1] == 0 && delta[2] == 0)
+                    continue;
+                var point = new GridPoint3D(
+                    centerPoint.X + delta[0], 
+                    centerPoint.Y + delta[1], 
+                    centerPoint.Z + delta[2]);
                 result.Add(point);
             }
             return result;
