@@ -11,6 +11,8 @@ namespace AdventOfCode2020.Grid
         Right = 2,
         Down = 3,
         In = 4,
-        Out = 5
+        Out = 5,
+        Up4D = 6,
+        Down4D = 7
     }
 }

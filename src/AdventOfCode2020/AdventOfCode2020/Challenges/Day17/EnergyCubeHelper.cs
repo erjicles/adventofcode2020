@@ -9,20 +9,77 @@ namespace AdventOfCode2020.Challenges.Day17
 {
     public static class EnergyCubeHelper
     {
-        public static HashSet<GridPoint3D> RunSimulation(
-            IList<GridPoint3D> initialActiveCubes, 
+        public static HashSet<GridPoint4D> RunSimulation4D(
+            IList<GridPoint> initialActiveCubes,
             int numberOfCycles)
         {
-            var currentState = initialActiveCubes.ToHashSet();
+            var currentState = initialActiveCubes.Select(p => new GridPoint4D(p)).ToHashSet();
             for (int cycleNumber = 1; cycleNumber <= numberOfCycles; cycleNumber++)
             {
-                var nextState = GetNextState(currentState);
+                var nextState = GetNextState4D(currentState);
                 currentState = nextState;
             }
             return currentState;
         }
 
-        public static HashSet<GridPoint3D> GetNextState(HashSet<GridPoint3D> initialState)
+        public static HashSet<GridPoint4D> GetNextState4D(HashSet<GridPoint4D> initialState)
+        {
+            var result = new HashSet<GridPoint4D>();
+
+            // Collect all the points to consider:
+            // All currently active points, plus all points adjacent to those
+            var pointsToConsider = new HashSet<GridPoint4D>();
+            foreach (var point in initialState)
+            {
+                if (!pointsToConsider.Contains(point))
+                {
+                    pointsToConsider.Add(point);
+                }
+                var adjacentPoints = GridHelper4D.GetAdjacentPoints(point);
+                foreach (var adjacentPoint in adjacentPoints)
+                {
+                    if (!pointsToConsider.Contains(adjacentPoint))
+                    {
+                        pointsToConsider.Add(adjacentPoint);
+                    }
+                }
+            }
+
+            // Process each point, add it to the next state if it should be active
+            foreach (var point in pointsToConsider)
+            {
+                var isCurrentlyActive = initialState.Contains(point);
+
+                // Count # of adjacent active points
+                int numberOfActiveAdjacentPoints = GridHelper4D.GetAdjacentPoints(point)
+                    .Where(a => initialState.Contains(a))
+                    .Count();
+
+                var isNextCubeStateActive = GetIsNextCubeStateActive(isCurrentlyActive, numberOfActiveAdjacentPoints);
+                if (isNextCubeStateActive)
+                {
+                    result.Add(point);
+                }
+
+            }
+
+            return result;
+        }
+
+        public static HashSet<GridPoint3D> RunSimulation3D(
+            IList<GridPoint> initialActiveCubes, 
+            int numberOfCycles)
+        {
+            var currentState = initialActiveCubes.Select(p => new GridPoint3D(p)).ToHashSet();
+            for (int cycleNumber = 1; cycleNumber <= numberOfCycles; cycleNumber++)
+            {
+                var nextState = GetNextState3D(currentState);
+                currentState = nextState;
+            }
+            return currentState;
+        }
+
+        public static HashSet<GridPoint3D> GetNextState3D(HashSet<GridPoint3D> initialState)
         {
             var result = new HashSet<GridPoint3D>();
 
@@ -87,9 +144,9 @@ namespace AdventOfCode2020.Challenges.Day17
             return false;
         }
 
-        public static IList<GridPoint3D> ParseInputLines(IList<string> inputLines)
+        public static IList<GridPoint> ParseInputLines(IList<string> inputLines)
         {
-            var result = new List<GridPoint3D>();
+            var result = new List<GridPoint>();
             for (int row = 0; row < inputLines.Count; row++)
             {
                 var inputLine = inputLines[row];
@@ -97,7 +154,7 @@ namespace AdventOfCode2020.Challenges.Day17
                 {
                     if ("#".Equals(inputLine[column].ToString()))
                     {
-                        var point = new GridPoint3D(column, row, 0);
+                        var point = new GridPoint(column, row);
                         result.Add(point);
                     }
                 }
