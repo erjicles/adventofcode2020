@@ -57,12 +57,53 @@ Before you can help with the homework, you need to understand it yourself. Evalu
             long result = 0;
             foreach (var expression in expressions)
             {
-                result += expression.Value;
+                var value = MathHomeworkHelper.GetExpressionStringValue(expression, new MathRules());
+                result += value;
             }
             return result;
         }
 
-        private static IList<MathExpression> GetDay18Input()
+        public static long GetDay18Part02Answer()
+        {
+            /*
+--- Part Two ---
+
+You manage to answer the child's questions and they finish part 1 of their homework, but get stuck when they reach the next section: advanced math.
+
+Now, addition and multiplication have different precedence levels, but they're not the ones you're familiar with. Instead, addition is evaluated before multiplication.
+
+For example, the steps to evaluate the expression 1 + 2 * 3 + 4 * 5 + 6 are now as follows:
+
+1 + 2 * 3 + 4 * 5 + 6
+  3   * 3 + 4 * 5 + 6
+  3   *   7   * 5 + 6
+  3   *   7   *  11
+     21       *  11
+         231
+
+Here are the other examples from above:
+
+    1 + (2 * 3) + (4 * (5 + 6)) still becomes 51.
+    2 * 3 + (4 * 5) becomes 46.
+    5 + (8 * 3 + 9 + 3 * 4 * 3) becomes 1445.
+    5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4)) becomes 669060.
+    ((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2 becomes 23340.
+
+What do you get if you add up the results of evaluating the homework problems using these new rules?
+
+             */
+            // Answer: 388966573054664
+            var expressions = GetDay18Input();
+            long result = 0;
+            foreach (var expression in expressions)
+            {
+                var value = MathHomeworkHelper.GetExpressionStringValue(expression, new MathRules(true));
+                result += value;
+            }
+            return result;
+        }
+
+        private static IList<string> GetDay18Input()
         {
             string filePath = Path.Combine(Directory.GetCurrentDirectory(), "InputData", FILE_NAME);
             if (!File.Exists(filePath))
@@ -70,8 +111,7 @@ Before you can help with the homework, you need to understand it yourself. Evalu
                 throw new Exception($"Cannot locate file {filePath}");
             }
 
-            var inputLines = File.ReadAllLines(filePath);
-            var result = MathHomeworkHelper.ParseInputLines(inputLines);
+            var result = File.ReadAllLines(filePath);
             return result;
         }
     }

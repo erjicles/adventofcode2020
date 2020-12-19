@@ -8,20 +8,15 @@ namespace AdventOfCode2020.Challenges.Day18
 {
     public class MathRules
     {
-        public static IList<MathOperator> OrderOfOperationsDefault { get; private set; } = new List<MathOperator>()
-        {
-            MathOperator.Addition,
-            MathOperator.Multiplication
-        };
-        public IList<MathOperator> OrderOfOperations { get; private set; } = OrderOfOperationsDefault;
+        public bool IsPerformingAdditionBeforeMultiplication { get; private set; } = false;
 
         public MathRules()
         {
         }
 
-        public MathRules(IList<MathOperator> orderOfOperations)
+        public MathRules(bool isPerformingAdditionBeforeMultiplication)
         {
-            OrderOfOperations = orderOfOperations;
+            IsPerformingAdditionBeforeMultiplication = isPerformingAdditionBeforeMultiplication;
         }
     }
 }
