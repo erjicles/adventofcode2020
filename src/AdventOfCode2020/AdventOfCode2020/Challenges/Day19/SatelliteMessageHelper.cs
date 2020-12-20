@@ -36,6 +36,7 @@ namespace AdventOfCode2020.Challenges.Day19
             // Item1: The list of rules remaining to be checked/expanded
             // Item2: The current index in the message string to be checked
             var rulesToCheck = new Stack<Tuple<IList<int>, int>>();
+            var rulesAlreadyVisited = new HashSet<string>();
 
             // Seed the stack
             rulesToCheck.Push(new Tuple<IList<int>, int>(new List<int>() { ruleNumber }, 0));
@@ -44,6 +45,12 @@ namespace AdventOfCode2020.Challenges.Day19
             while (rulesToCheck.Count > 0)
             {
                 var currentRuleToCheck = rulesToCheck.Pop();
+                var currentRuleToCheckString = GetRuleString(currentRuleToCheck.Item1, currentRuleToCheck.Item2);
+                if (rulesAlreadyVisited.Contains(currentRuleToCheckString))
+                {
+                    continue;
+                }
+                rulesAlreadyVisited.Add(currentRuleToCheckString);
 
                 var currentSubRules = currentRuleToCheck.Item1;
                 var currentStartIndex = currentRuleToCheck.Item2;
@@ -77,6 +84,7 @@ namespace AdventOfCode2020.Challenges.Day19
                         {
                             return true;
                         }
+
                         rulesToPushToStack.Add(nextSubRules);
                     }
                 }
@@ -95,7 +103,10 @@ namespace AdventOfCode2020.Challenges.Day19
                         {
                             ruleToPush.Add(subRuleNumber);
                         }
-                        rulesToPushToStack.Add(ruleToPush);
+                        if (currentStartIndex + ruleToPush.Count <= message.Length)
+                        {
+                            rulesToPushToStack.Add(ruleToPush);
+                        }
                     }
                 }
                 else
@@ -107,11 +118,21 @@ namespace AdventOfCode2020.Challenges.Day19
                 foreach (var ruleToPushToStack in rulesToPushToStack)
                 {
                     var ruleTupleToPush = new Tuple<IList<int>, int>(ruleToPushToStack, currentStartIndex);
-                    rulesToCheck.Push(ruleTupleToPush);
+                    var ruleString = GetRuleString(ruleTupleToPush.Item1, ruleTupleToPush.Item2);
+                    if (!rulesAlreadyVisited.Contains(ruleString))
+                    {
+                        rulesToCheck.Push(ruleTupleToPush);
+                    }
                 }
             }
 
             return false;
+        }
+
+        public static string GetRuleString(IList<int> rules, int currentIndex)
+        {
+            var result = $"{string.Join(",", rules)}:{currentIndex}";
+            return result;
         }
 
         public static Tuple<int, string> ParseAtomicRule(Match match)
@@ -142,11 +163,26 @@ namespace AdventOfCode2020.Challenges.Day19
             return result;
         }
 
-        public static SatelliteData ParseInputLines(IList<string> inputLines)
+        public static SatelliteData ParseInputLines(
+            IList<string> inputLines, 
+            IDictionary<string, string> lineReplacements = null)
         {
             var atomicRules = new Dictionary<int, string>();
             var subRules = new Dictionary<int, IList<IList<int>>>();
             var messages = new List<string>();
+
+            // Handle rule replacements
+            if (lineReplacements != null)
+            {
+                for (int i = 0; i < inputLines.Count; i++)
+                {
+                    var inputLine = inputLines[i];
+                    if (lineReplacements.ContainsKey(inputLine))
+                    {
+                        inputLines[i] = lineReplacements[inputLine];
+                    }    
+                }
+            }
 
             foreach (var inputLine in inputLines)
             {
