@@ -182,29 +182,144 @@ Assemble the tiles into an image. What do you get if you multiply together the I
             var tileSize = tiles[0].TileDefinition.Count;
             var tileIdDictionary = tiles.ToDictionary(tile => tile.TileId);
             var sucess = SatelliteImageHelper.TryGetTilePositionsAndOrientations(tiles, out IList<IList<Tuple<int, TileOrientation>>> tilePlacements);
-            foreach (var tileRow in tilePlacements)
-            {
-                for (int row = 0; row < tileSize; row++)
-                {
-                    foreach (var tilePlacement in tileRow)
-                    {
-                        var tileId = tilePlacement.Item1;
-                        var orientation = tilePlacement.Item2;
-                        var tile = tileIdDictionary[tileId];
-                        var tileDefinition = tile.Orientations[orientation];
-                        var rowString = tileDefinition[row];
-                        Console.Write(rowString);
-                        Console.Write(" ");
-                    }
-                    Console.WriteLine("");
-                }
-                Console.WriteLine("");
-            }
+            //foreach (var tileRow in tilePlacements)
+            //{
+            //    for (int row = 0; row < tileSize; row++)
+            //    {
+            //        foreach (var tilePlacement in tileRow)
+            //        {
+            //            var tileId = tilePlacement.Item1;
+            //            var orientation = tilePlacement.Item2;
+            //            var tile = tileIdDictionary[tileId];
+            //            var tileDefinition = tile.Orientations[orientation];
+            //            var rowString = tileDefinition[row];
+            //            Console.Write(rowString);
+            //            Console.Write(" ");
+            //        }
+            //        Console.WriteLine("");
+            //    }
+            //    Console.WriteLine("");
+            //}
             long result = 1;
             result *= tilePlacements[0][0].Item1;
             result *= tilePlacements[0][^1].Item1;
             result *= tilePlacements[^1][0].Item1;
             result *= tilePlacements[^1][^1].Item1;
+            return result;
+        }
+
+        public static long GetDay20Part02Answer()
+        {
+            /*
+--- Part Two ---
+Now, you're ready to check the image for sea monsters.
+
+The borders of each tile are not part of the actual image; start by removing them.
+
+In the example above, the tiles become:
+
+.#.#..#. ##...#.# #..#####
+###....# .#....#. .#......
+##.##.## #.#.#..# #####...
+###.#### #...#.## ###.#..#
+##.#.... #.##.### #...#.##
+...##### ###.#... .#####.#
+....#..# ...##..# .#.###..
+.####... #..#.... .#......
+
+#..#.##. .#..###. #.##....
+#.####.. #.####.# .#.###..
+###.#.#. ..#.#### ##.#..##
+#.####.. ..##..## ######.#
+##..##.# ...#...# .#.#.#..
+...#..#. .#.#.##. .###.###
+.#.#.... #.##.#.. .###.##.
+###.#... #..#.##. ######..
+
+.#.#.### .##.##.# ..#.##..
+.####.## #.#...## #.#..#.#
+..#.#..# ..#.#.#. ####.###
+#..####. ..#.#.#. ###.###.
+#####..# ####...# ##....##
+#.##..#. .#...#.. ####...#
+.#.###.. ##..##.. ####.##.
+...###.. .##...#. ..#..###
+Remove the gaps to form the actual image:
+
+.#.#..#.##...#.##..#####
+###....#.#....#..#......
+##.##.###.#.#..######...
+###.#####...#.#####.#..#
+##.#....#.##.####...#.##
+...########.#....#####.#
+....#..#...##..#.#.###..
+.####...#..#.....#......
+#..#.##..#..###.#.##....
+#.####..#.####.#.#.###..
+###.#.#...#.######.#..##
+#.####....##..########.#
+##..##.#...#...#.#.#.#..
+...#..#..#.#.##..###.###
+.#.#....#.##.#...###.##.
+###.#...#..#.##.######..
+.#.#.###.##.##.#..#.##..
+.####.###.#...###.#..#.#
+..#.#..#..#.#.#.####.###
+#..####...#.#.#.###.###.
+#####..#####...###....##
+#.##..#..#...#..####...#
+.#.###..##..##..####.##.
+...###...##...#...#..###
+Now, you're ready to search for sea monsters! Because your image is monochrome, a sea monster will look like this:
+
+                  # 
+#    ##    ##    ###
+ #  #  #  #  #  #   
+When looking for this pattern in the image, the spaces can be anything; only the # need to match. Also, you might need to rotate or flip your image before it's oriented correctly to find sea monsters. In the above image, after flipping and rotating it to the appropriate orientation, there are two sea monsters (marked with O):
+
+.####...#####..#...###..
+#####..#..#.#.####..#.#.
+.#.#...#.###...#.##.O#..
+#.O.##.OO#.#.OO.##.OOO##
+..#O.#O#.O##O..O.#O##.##
+...#.#..##.##...#..#..##
+#.##.#..#.#..#..##.#.#..
+.###.##.....#...###.#...
+#.####.#.#....##.#..#.#.
+##...#..#....#..#...####
+..#.##...###..#.#####..#
+....#.##.#.#####....#...
+..##.##.###.....#.##..#.
+#...#...###..####....##.
+.#.##...#.##.#.#.###...#
+#.###.#..####...##..#...
+#.###...#.##...#.##O###.
+.O##.#OO.###OO##..OOO##.
+..O#.O..O..O.#O##O##.###
+#.#..##.########..#..##.
+#.#####..#.#...##..#....
+#....##..#.#########..##
+#...#.....#..##...###.##
+#..###....##.#...##.##.#
+Determine how rough the waters are in the sea monsters' habitat by counting the number of # that are not part of a sea monster. In the above example, the habitat's water roughness is 273.
+
+How many # are not part of a sea monster?
+             */
+            // Answer: 2161
+            var tiles = GetDay20Input();
+            var tileSize = tiles[0].TileDefinition.Count;
+            var tileIdDictionary = tiles.ToDictionary(tile => tile.TileId);
+            var sucess = SatelliteImageHelper.TryGetTilePositionsAndOrientations(tiles, out IList<IList<Tuple<int, TileOrientation>>> tilePlacements);
+            var tilePlacementStrings = SatelliteImageHelper.GetTilePlacementStringsFromTilePlacements(tiles, tilePlacements);
+            var image = SatelliteImageHelper.GetImageFromTilePlacementStrings(tilePlacementStrings, 1);
+            var targetPattern = new List<string>()
+            {
+                "                  # ",
+                "#    ##    ##    ###",
+                " #  #  #  #  #  #   ",
+            };
+            var roughWaterPositions = SatelliteImageHelper.GetRoughWaterPositions(image, targetPattern, '#');
+            var result = roughWaterPositions.Count;
             return result;
         }
 

@@ -10,24 +10,165 @@ namespace AdventOfCode2020.Challenges.Day20
 {
     public static class SatelliteImageHelper
     {
+        public static HashSet<Tuple<int, int>> GetRoughWaterPositions(
+            IList<string> image, 
+            IList<string> targetPattern,
+            char targetCharacter)
+        {
+            var result = GetTargetCharacterPositions(image, targetCharacter);
+
+            var targetPatternTile = new Tile(-1, targetPattern);
+            var patterns = targetPatternTile.Orientations
+                .Select(kvp => kvp.Value)
+                .ToList();
+
+            foreach (var pattern in patterns)
+            {
+                var targetCharacterPositionsWithinPattern = GetTargetCharacterPositions(
+                    pattern,
+                    targetCharacter);
+
+                var patternHeight = pattern.Count;
+                var patternWidth = pattern[0].Length;
+
+                // Move the pattern along the image, one position at a time
+                // Every time each target character is hit, flag the positions
+                for (int imageRowIndex = 0; imageRowIndex < image.Count; imageRowIndex++)
+                {
+                    if (imageRowIndex + patternHeight > image.Count)
+                    {
+                        break;
+                    }
+                    for (int imageColIndex = 0; imageColIndex < image[imageRowIndex].Length; imageColIndex++)
+                    {
+                        if (imageColIndex + patternWidth > image[imageRowIndex].Length)
+                        {
+                            break;
+                        }
+
+                        // At this position within the image, loop through the target characters within the pattern
+                        var matchedPositions = new HashSet<Tuple<int, int>>();
+                        foreach (var targetCharacterPositionWithinPattern in targetCharacterPositionsWithinPattern)
+                        {
+                            var characterRowIndex = imageRowIndex + targetCharacterPositionWithinPattern.Item1;
+                            var characterColIndex = imageColIndex + targetCharacterPositionWithinPattern.Item2;
+                            var position = new Tuple<int, int>(characterRowIndex, characterColIndex);
+                            var testCharacter = image[characterRowIndex][characterColIndex];
+                            if (!testCharacter.Equals(targetCharacter))
+                            {
+                                break;
+                            }
+                            matchedPositions.Add(position);
+                        }
+                        if (matchedPositions.Count == targetCharacterPositionsWithinPattern.Count)
+                        {
+                            foreach (var matchedPosition in matchedPositions)
+                            {
+                                if (result.Contains(matchedPosition))
+                                {
+                                    result.Remove(matchedPosition);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public static HashSet<Tuple<int, int>> GetTargetCharacterPositions(
+            IList<string> image, 
+            char targetCharacter)
+        {
+            var result = new HashSet<Tuple<int, int>>();
+            for (int rowIndex = 0; rowIndex < image.Count; rowIndex++)
+            {
+                for (int colIndex = 0; colIndex < image[rowIndex].Length; colIndex++)
+                {
+                    if (targetCharacter.Equals(image[rowIndex][colIndex]))
+                    {
+                        var position = new Tuple<int, int>(rowIndex, colIndex);
+                        result.Add(position);
+                    }
+                }
+            }
+            return result;
+        }
+
+        public static IList<string> GetImageFromTilePlacementStrings(
+            IList<IList<IList<string>>> tilePlacementStrings,
+            int borderThickness = 1)
+        {
+            var result = new List<string>();
+
+            var tileHeight = tilePlacementStrings.Count > 0
+                ? (tilePlacementStrings[0].Count > 0 ? tilePlacementStrings[0][0].Count : 0)
+                : 0;
+
+            foreach (var tileRow in tilePlacementStrings)
+            {
+                for (int rowIndex = borderThickness; rowIndex < tileHeight - borderThickness; rowIndex++)
+                {
+                    var rowStringBuilder = new StringBuilder();
+                    foreach (var tile in tileRow)
+                    {
+                        var tileRowString = tile[rowIndex];
+                        var tileRowImageString = string.Empty;
+                        if (tileRowString.Length > borderThickness * 2)
+                        {
+                            tileRowImageString = tileRowString.Substring(borderThickness, tileRowString.Length - (2 * borderThickness));
+                        }
+                        rowStringBuilder.Append(tileRowImageString);
+                    }
+                    result.Add(rowStringBuilder.ToString());
+                }
+            }
+
+            return result;
+        }
+
+        public static IList<IList<IList<string>>> GetTilePlacementStringsFromTilePlacements(
+            IList<Tile> tiles, 
+            IList<IList<Tuple<int, TileOrientation>>> tilePlacements)
+        {
+            var result = new List<IList<IList<string>>>();
+
+            var tileIdDictionary = tiles.ToDictionary(tile => tile.TileId);
+
+            foreach (var tileRow in tilePlacements)
+            {
+                var resultTileRow = new List<IList<string>>();
+                foreach (var tilePlacement in tileRow)
+                {
+                    var tile = tileIdDictionary[tilePlacement.Item1];
+                    var tileOrientationStrings = tile.Orientations[tilePlacement.Item2];
+                    resultTileRow.Add(tileOrientationStrings);
+                }
+                result.Add(resultTileRow);
+            }
+            return result;
+        }
+
         public static bool TryGetTilePositionsAndOrientations(
-            IList<Tile> inputTiles,
+            IList<Tile> tiles,
             out IList<IList<Tuple<int, TileOrientation>>> tilePlacements)
         {
-            var tileIdDictionary = inputTiles.ToDictionary(tile => tile.TileId);
-            var tileIdSet = inputTiles.Select(tile => tile.TileId).ToHashSet();
+            var tileIdDictionary = tiles.ToDictionary(tile => tile.TileId);
+            var tileIdSet = tiles.Select(tile => tile.TileId).ToHashSet();
+
             tilePlacements = null;
 
-            if (!TryGetSquareEdgeLength(inputTiles.Count, out int edgeLength))
+            if (!TryGetSquareEdgeLength(tiles.Count, out int edgeLength))
             {
-                throw new Exception($"Cannot create square from tiles given: {inputTiles.Count}");
+                throw new Exception($"Cannot create square from tiles given: {tiles.Count}");
             }
 
             // Each candidate contains the currently placed tiles/orientations, and the set of remaining tile ids to place
             var candidates = new Stack<Tuple<IList<IList<Tuple<int, TileOrientation>>>, HashSet<int>>>();
 
             // Seed the candidates with each tile's possible orientations at the top-left
-            foreach (var tile in inputTiles)
+            foreach (var tile in tiles)
             {
                 foreach (var orientation in TileOrientation.TileOrientations)
                 {
@@ -143,6 +284,7 @@ namespace AdventOfCode2020.Challenges.Day20
                 return true;
             return false;
         }
+
         public static IList<Tile> ParseInputLines(IList<string> inputLines)
         {
             var result = new List<Tile>();
