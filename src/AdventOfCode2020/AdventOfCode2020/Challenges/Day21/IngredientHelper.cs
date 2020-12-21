@@ -9,6 +9,17 @@ namespace AdventOfCode2020.Challenges.Day21
 {
     public static class IngredientHelper
     {
+        public static string GetCanonicalDangerousIngredientList(
+            IList<Tuple<string, string>> ingredientAllergens)
+        {
+            var result = string.Join(
+                ",",
+                ingredientAllergens
+                    .OrderBy(t => t.Item2)
+                    .Select(t => t.Item1));
+            return result;
+        }
+
         public static int GetNumberOfIngredientAppearances(
             IList<Tuple<IList<string>, IList<string>>> ingredientLists, 
             IList<string> ingredients)
@@ -21,10 +32,13 @@ namespace AdventOfCode2020.Challenges.Day21
             return result;
         }
 
-        public static IList<string> GetIngredientsWithNoAllergens(
-            IList<Tuple<IList<string>, IList<string>>> ingredientLists)
+        public static bool TryGetIngredientAllergens(
+            IList<Tuple<IList<string>, IList<string>>> ingredientLists,
+            out IList<IList<Tuple<string, string>>> ingredientAllergenConfigurations,
+            out IList<string> ingredientsWithNoAllergens)
         {
-            var result = new List<string>();
+            ingredientAllergenConfigurations = new List<IList<Tuple<string, string>>>();
+            ingredientsWithNoAllergens = new List<string>();
             var uniqueIngredients = ingredientLists.SelectMany(t => t.Item1).ToHashSet();
             var ingredientsWithValidAllergens = new HashSet<string>();
 
@@ -118,6 +132,7 @@ namespace AdventOfCode2020.Challenges.Day21
                                 {
                                     ingredientsWithValidAllergens.Add(validAssignment.Item1);
                                 }
+                                ingredientAllergenConfigurations.Add(newAssignments);
                                 break;
                             }
                             // Things remain to be assigned
@@ -138,11 +153,15 @@ namespace AdventOfCode2020.Challenges.Day21
             {
                 if (!ingredientsWithValidAllergens.Contains(ingredient))
                 {
-                    result.Add(ingredient);
+                    ingredientsWithNoAllergens.Add(ingredient);
                 }
             }
 
-            return result;
+            if (ingredientAllergenConfigurations.Count == 0)
+            {
+                return false;
+            }
+            return true;
         }
 
         public static Tuple<IList<string>, IList<string>> ParseInputLine(string inputLine)

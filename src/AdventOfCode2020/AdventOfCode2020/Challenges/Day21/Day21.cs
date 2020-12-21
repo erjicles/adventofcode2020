@@ -40,8 +40,49 @@ Determine which ingredients cannot possibly contain any of the allergens in your
              */
             // Answer: 1885
             var ingredientLists = GetDay21Input();
-            var ingredientsWithNoAllergens = IngredientHelper.GetIngredientsWithNoAllergens(ingredientLists);
+            _ = IngredientHelper.TryGetIngredientAllergens(
+                ingredientLists,
+                out IList<IList<Tuple<string, string>>> _,
+                out IList<string> ingredientsWithNoAllergens);
             var result = IngredientHelper.GetNumberOfIngredientAppearances(ingredientLists, ingredientsWithNoAllergens);
+            return result;
+        }
+
+        public static string GetDay21Part02Answer()
+        {
+            /*
+--- Part Two ---
+
+Now that you've isolated the inert ingredients, you should have enough information to figure out which ingredient contains which allergen.
+
+In the above example:
+
+    mxmxvkd contains dairy.
+    sqjhc contains fish.
+    fvjkl contains soy.
+
+Arrange the ingredients alphabetically by their allergen and separate them by commas to produce your canonical dangerous ingredient list. (There should not be any spaces in your canonical dangerous ingredient list.) In the above example, this would be mxmxvkd,sqjhc,fvjkl.
+
+Time to stock your raft with supplies. What is your canonical dangerous ingredient list?
+
+             */
+            // Answer: fllssz,kgbzf,zcdcdf,pzmg,kpsdtv,fvvrc,dqbjj,qpxhfp
+            var ingredientLists = GetDay21Input();
+            _ = IngredientHelper.TryGetIngredientAllergens(
+                ingredientLists,
+                out IList<IList<Tuple<string, string>>> ingredientAllergenConfigurations,
+                out IList<string> _);
+            var canonicalListSet = new HashSet<string>();
+            foreach (var configuration in ingredientAllergenConfigurations)
+            {
+                var canonicalList = IngredientHelper.GetCanonicalDangerousIngredientList(configuration);
+                canonicalListSet.Add(canonicalList);
+            }
+            if (canonicalListSet.Count > 1)
+            {
+                throw new Exception($"Failed to find unique canonical list: {canonicalListSet.Count}");
+            }
+            var result = canonicalListSet.First();
             return result;
         }
 
