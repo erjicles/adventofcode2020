@@ -26,5 +26,40 @@ namespace AdventOfCode2020.Challenges.Day22
                 SpaceCards.Enqueue(card);
             }
         }
+
+        public override bool Equals(Object obj)
+        {
+            //Check for null and compare run-time types.
+            if ((obj == null) || !this.GetType().Equals(obj.GetType()))
+            {
+                return false;
+            }
+            else
+            {
+                Deck other = (Deck)obj;
+                if (!string.Equals(PlayerName, other.PlayerName))
+                {
+                    return false;
+                }
+                var areSpaceCardsEqual = SpaceCards.Count == other.SpaceCards.Count
+                    && !SpaceCards
+                    .Where(card => !other.SpaceCards.Contains(card))
+                    .Any();
+                return areSpaceCardsEqual;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            var tuple = Tuple.Create(PlayerName, SpaceCards);
+            int hash = tuple.GetHashCode();
+            return hash;
+        }
+
+        public override string ToString()
+        {
+            var result = $"{PlayerName}: {string.Join(", ", SpaceCards.ToList())}";
+            return result;
+        }
     }
 }

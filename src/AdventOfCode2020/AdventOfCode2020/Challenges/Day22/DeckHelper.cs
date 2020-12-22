@@ -9,6 +9,28 @@ namespace AdventOfCode2020.Challenges.Day22
 {
     public static class DeckHelper
     {
+        public static IList<Deck> GetDeckCopies(IList<Deck> decks)
+        {
+            var result = new List<Deck>();
+            foreach (var deck in decks)
+            {
+                var deckCopy = GetDeckCopy(deck);
+                result.Add(deckCopy);
+            }
+            return result;
+        }
+
+        public static Deck GetDeckCopy(Deck deck)
+        {
+            var cards = new Queue<int>();
+            foreach (var card in deck.SpaceCards.ToList())
+            {
+                cards.Enqueue(card);
+            }
+            var copy = new Deck(deck.PlayerName, cards);
+            return copy;
+        }
+
         public static IList<Deck> ParseInputLines(IList<string> inputLines)
         {
             var result = new List<Deck>();
