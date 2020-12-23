@@ -8,107 +8,188 @@ namespace AdventOfCode2020.Challenges.Day23
 {
     public static class CrabCupHelper
     {
-        public static string GetCanonicalCrabCupString(int[] cups)
+        public static string GetCanonicalCrabCupString(IList<int> cups)
         {
             var canonicalCupOrder = new List<int>();
-            var cup1Index = Array.IndexOf(cups, 1);
-            for (int indexOffset = 1; indexOffset < cups.Length; indexOffset++)
+            var cup1Index = cups.IndexOf(1);
+            for (int indexOffset = 1; indexOffset < cups.Count; indexOffset++)
             {
-                var cupIndex = (cup1Index + indexOffset) % cups.Length;
+                var cupIndex = (cup1Index + indexOffset) % cups.Count;
                 var cupLabel = cups[cupIndex];
                 canonicalCupOrder.Add(cupLabel);
             }
             var result = string.Join("", canonicalCupOrder);
             return result;
         }
-        public static int[] PlayCrabCups(
+        public static IList<int> PlayCrabCups(
             IList<int> startingNumbers,
             int numberOfCupsToPickUp,
             int numberOfRounds)
         {
-            var currentState = startingNumbers.ToArray();
-            var currentCupIndex = 0;
+            var numberLinkedList = new LinkedList<int>(startingNumbers);
+            var labelToNodeDictionary = new Dictionary<int, LinkedListNode<int>>();
+            var currentNode = numberLinkedList.First;
+            for (int i = 0; i < startingNumbers.Count; i++)
+            {
+                labelToNodeDictionary.Add(currentNode.Value, currentNode);
+                currentNode = currentNode.Next;
+            }
+
+            var currentCupNode = numberLinkedList.First;
+            var startTime = DateTime.Now;
+            int pingRounds = 1000000;
             for (int roundNumber = 1; roundNumber <= numberOfRounds; roundNumber++)
             {
-                var pickedUpCupIndexes = GetPickedUpCupIndexes(currentState, currentCupIndex, numberOfCupsToPickUp);
-                var destinationCupIndex = GetDestinationCupIndex(currentState, currentCupIndex, pickedUpCupIndexes);
-                currentState = GetNextState(currentState, currentCupIndex, destinationCupIndex, pickedUpCupIndexes);
-                currentCupIndex = (currentCupIndex + 1) % currentState.Length;
+                var cupsToRemoveNodes = new List<LinkedListNode<int>>();
+
+                if (roundNumber % pingRounds == 0)
+                {
+                    var endTime = DateTime.Now;
+                    var timeDiffSeconds = (endTime - startTime).TotalSeconds;
+                    var secondsPerRound = (double)timeDiffSeconds / pingRounds;
+                    var totalSeconds = numberOfRounds * secondsPerRound;
+                    Console.WriteLine($"---> Round {roundNumber}: {timeDiffSeconds} seconds; Estimated total time for all: {totalSeconds}");
+                    startTime = DateTime.Now;
+                }
+
+                var nextCupNode = currentCupNode;
+                for (int i = 0; i < numberOfCupsToPickUp; i++)
+                {
+                    nextCupNode = nextCupNode.Next;
+                    if (nextCupNode == null)
+                    {
+                        nextCupNode = numberLinkedList.First;
+                    }
+                    cupsToRemoveNodes.Add(nextCupNode);
+                }
+
+                var destinationCup = currentCupNode.Value;
+                for (int i = 1; i < startingNumbers.Count; i++)
+                {
+                    destinationCup--;
+                    if (destinationCup < 1)
+                    {
+                        destinationCup += startingNumbers.Count;
+                    }
+                    if (!cupsToRemoveNodes.Select(n => n.Value).Contains(destinationCup))
+                    {
+                        break;
+                    }
+                }
+
+                //Console.WriteLine($"Round: {roundNumber}");
+                //Console.WriteLine($"{string.Join(" ", numberLinkedList.Select(cup => currentCupNode.Value == cup ? $"({cup})" : $"{cup}"))}");
+                //Console.WriteLine($"Picked up cups: {string.Join(",", cupsToRemoveNodes.Select(cn => cn.Value))}");
+                //Console.WriteLine($"Destination cup: {destinationCup}");
+                //Console.WriteLine("");
+                //Console.ReadKey();
+
+                var destinationCupNode = labelToNodeDictionary[destinationCup];
+                var destinationNextNode = destinationCupNode.Next;
+                
+                // Remove them
+                foreach (var removeNode in cupsToRemoveNodes)
+                {
+                    numberLinkedList.Remove(removeNode);
+                }
+
+                // Add them
+                var addAfterNode = destinationCupNode;
+                foreach (var addNode in cupsToRemoveNodes)
+                {
+                    numberLinkedList.AddAfter(addAfterNode, addNode);
+                    addAfterNode = addNode;
+                }
+
+                currentCupNode = currentCupNode.Next;
+                if (currentCupNode == null)
+                {
+                    currentCupNode = numberLinkedList.First;
+                }
+
             }
-            return currentState;
+
+            return numberLinkedList.ToList();
         }
 
-        public static int[] GetNextState(
-            int[] currentState, 
+        public static void ProcessRound(
+            IList<int> currentState, 
             int currentCupIndex, 
             int destinationCupIndex, 
-            int[] pickedUpCupIndexes)
+            IList<int> pickedUpCupIndexes,
+            out int nextCurrentCupIndex)
         {
-            var result = new int[currentState.Length];
-            
-            var destinationCupLabel = currentState[destinationCupIndex];
-            var pickedUpCupLabels = new int[pickedUpCupIndexes.Length];
-            for (int i = 0; i < pickedUpCupIndexes.Length; i++)
+            var totalNumberOfCups = currentState.Count;
+            var pickedUpCupLabels = new int[pickedUpCupIndexes.Count];
+            for (int i = 0; i < pickedUpCupIndexes.Count; i++)
             {
                 pickedUpCupLabels[i] = currentState[pickedUpCupIndexes[i]];
             }
 
-            int moveToIndexOffset = 0;
-            for (int i = 1; i <= currentState.Length - pickedUpCupIndexes.Length; i++)
+            // First remove them
+            var removalIndex = currentCupIndex + 1;
+            for (int i = 0; i < pickedUpCupLabels.Length; i++)
             {
-                var getFromIndex = (currentCupIndex + i + pickedUpCupIndexes.Length) % currentState.Length;
-                var moveToIndex = (currentCupIndex + i + moveToIndexOffset) % currentState.Length;
-
-                result[moveToIndex] = currentState[getFromIndex];
-
-                var getFromLabel = currentState[getFromIndex];
-                if (getFromLabel == destinationCupLabel)
+                if (removalIndex >= currentState.Count)
                 {
-                    for (int j = 0; j < pickedUpCupIndexes.Length; j++)
-                    {
-                        var insertionIndex = (moveToIndex + 1 + j) % currentState.Length;
-                        result[insertionIndex] = pickedUpCupLabels[j];
-                    }
-                    moveToIndexOffset = pickedUpCupIndexes.Length;
+                    removalIndex = 0;
                 }
-
+                currentState.RemoveAt(removalIndex);
+                if (removalIndex < currentCupIndex)
+                {
+                    currentCupIndex--;
+                }
+                if (removalIndex < destinationCupIndex)
+                {
+                    destinationCupIndex--;
+                }    
             }
 
-            return result;
+            // Now insert them back
+            for (int i = 0; i < pickedUpCupLabels.Length; i++)
+            {
+                var cupToInsertLabel = pickedUpCupLabels[pickedUpCupLabels.Length - 1 - i];
+                var insertionIndex = destinationCupIndex + 1;
+                currentState.Insert(insertionIndex, cupToInsertLabel);
+                if (currentCupIndex >= insertionIndex)
+                {
+                    currentCupIndex++;
+                }
+            }
+
+            nextCurrentCupIndex = (currentCupIndex + 1) % totalNumberOfCups;
         }
 
         public static int GetDestinationCupIndex(
-            int[] currentState, 
+            IList<int> currentState, 
             int currentCupIndex,
-            int[] pickedUpCupIndexes)
+            IList<int> pickedUpCupIndexes)
         {
             var result = -1;
             var currentCupLabel = currentState[currentCupIndex];
-            var labelToIndexDictionary = new Dictionary<int, int>();
-            var pickedUpCupLabels = new HashSet<int>();
+            var pickedUpCupLabels = pickedUpCupIndexes.Select(i => currentState[i]).ToHashSet();
 
             // Create dictionary of cup labels and indexes for easy lookup
-            int maxLabel = currentState[0];
-            int minLabel = currentState[0];
-            for (int i = 0; i < currentState.Length; i++)
-            {
-                var cupLabel = currentState[i];
-                labelToIndexDictionary.Add(cupLabel, i);
-                if (cupLabel < minLabel)
-                {
-                    minLabel = cupLabel;
-                }
-                if (cupLabel > maxLabel)
-                {
-                    maxLabel = cupLabel;
-                }
-            }
+            var maxLabel = currentState.Count;
+            var minLabel = 1;
+            //var labelToIndexDictionary = new Dictionary<int, int>();
+            //int maxLabel = currentState[0];
+            //int minLabel = currentState[0];
+            //for (int i = 0; i < currentState.Count; i++)
+            //{
+            //    var cupLabel = currentState[i];
+            //    labelToIndexDictionary.Add(cupLabel, i);
+            //    if (cupLabel < minLabel)
+            //    {
+            //        minLabel = cupLabel;
+            //    }
+            //    if (cupLabel > maxLabel)
+            //    {
+            //        maxLabel = cupLabel;
+            //    }
+            //}
 
-            // Create set of picked up cup labels for easy lookup
-            for (int i = 0; i < pickedUpCupIndexes.Length; i++)
-            {
-                pickedUpCupLabels.Add(currentState[pickedUpCupIndexes[i]]);
-            }
+            
 
             var minMaxDelta = maxLabel - minLabel;
             for (int labelOffset = 1; labelOffset <= minMaxDelta; labelOffset++)
@@ -118,27 +199,56 @@ namespace AdventOfCode2020.Challenges.Day23
                 {
                     destinationLabel += minMaxDelta + 1;
                 }
-                if (!labelToIndexDictionary.ContainsKey(destinationLabel))
-                    continue;
+                //if (!labelToIndexDictionary.ContainsKey(destinationLabel))
+                //    continue;
                 if (pickedUpCupLabels.Contains(destinationLabel))
                     continue;
-                result = labelToIndexDictionary[destinationLabel];
+                // labelToIndexDictionary[destinationLabel];
+                result = currentState.IndexOf(destinationLabel);
                 break;
             }
 
             return result;
         }
 
-        public static int[] GetPickedUpCupIndexes(
-            int[] currentState, 
+
+        public static IList<int> GetPickedUpCupIndexes(
+            IList<int> currentState, 
             int currentCupIndex, 
             int numberOfCupsToPickUp)
         {
-            var result = new int[numberOfCupsToPickUp];
-            for (int i = 0; i < result.Length; i++)
+            var result = new List<int>();
+            for (int i = 0; i < numberOfCupsToPickUp; i++)
             {
-                var cupToPickUpIndex = (currentCupIndex + 1 + i) % currentState.Length;
-                result[i] = cupToPickUpIndex;
+                var cupToPickUpIndex = (currentCupIndex + 1 + i) % currentState.Count;
+                result.Add(cupToPickUpIndex);
+            }
+            return result;
+        }
+
+        public static bool GetAreEquivalent(IList<int> left, IList<int> right)
+        {
+            if (left.Count != right.Count)
+                return false;
+            if (left.Count == 0)
+                return true;
+            var startNumber = left[0];
+            var rightStartIndex = right.IndexOf(startNumber);
+            for (int i = 0; i < left.Count; i++)
+            {
+                var rightIndex = (rightStartIndex + i) % left.Count;
+                if (left[i] != right[rightIndex])
+                    return false;
+            }
+            return true;
+        }
+
+        public static IList<int> GetPart2StartingNumbers(IList<int> initialStartingNumbers)
+        {
+            var result = initialStartingNumbers.ToList();
+            for (int i = initialStartingNumbers.Count + 1; i <= 1000000; i++)
+            {
+                result.Add(i);
             }
             return result;
         }
