@@ -9,6 +9,60 @@ namespace AdventOfCode2020.Challenges.Day24
 {
     public static class TileHelper
     {
+        public static IList<GridPoint> GetBlackTilesAfterNDays(IList<GridPoint> startingBlackTiles, int numberOfDays)
+        {
+            var currentBlackTiles = startingBlackTiles;
+            for (int i = 1; i <= numberOfDays; i++)
+            {
+                currentBlackTiles = GetNextDayBlackTiles(currentBlackTiles);
+            }
+            return currentBlackTiles;
+        }
+
+        public static IList<GridPoint> GetNextDayBlackTiles(IList<GridPoint> startingBlackTiles)
+        {
+            var result = new List<GridPoint>();
+            var currentBlackTiles = startingBlackTiles.ToHashSet();
+
+            var tilesToCheck = new HashSet<GridPoint>();
+            foreach (var blackTile in startingBlackTiles)
+            {
+                tilesToCheck.Add(blackTile);
+                var adjacentTiles = GetAdjacentHexPoints(blackTile);
+                foreach (var adjacentTile in adjacentTiles)
+                {
+                    if (!tilesToCheck.Contains(adjacentTile))
+                    {
+                        tilesToCheck.Add(adjacentTile);
+                    }
+                }
+            }
+                
+            foreach (var tile in tilesToCheck)
+            {
+                var isCurrentlyBlack = currentBlackTiles.Contains(tile);
+                var numberOfAdjacentBlackTiles = GetAdjacentHexPoints(tile)
+                    .Where(tile => currentBlackTiles.Contains(tile))
+                    .Count();
+
+                // Any black tile with zero or more than 2 black tiles immediately adjacent to it is flipped to white.
+                // Any white tile with exactly 2 black tiles immediately adjacent to it is flipped to black.
+                if (isCurrentlyBlack &&
+                    (numberOfAdjacentBlackTiles == 1
+                    || numberOfAdjacentBlackTiles == 2))
+                {
+                    result.Add(tile);
+                }
+                else if (!isCurrentlyBlack
+                    && numberOfAdjacentBlackTiles == 2)
+                {
+                    result.Add(tile);
+                }
+            }
+
+            return result;
+        }
+
         public static IList<GridPoint> GetBlackTiles(IList<GridPoint> identifiedTiles)
         {
             var tileDictionary = new Dictionary<GridPoint, int>();
@@ -50,6 +104,28 @@ namespace AdventOfCode2020.Challenges.Day24
                 var nextPoint = MoveHex(currentPoint, direction);
                 result.Add(nextPoint);
                 currentPoint = nextPoint;
+            }
+            return result;
+        }
+
+        public static List<HexMovementDirection> HexMovementDirections { get; private set; } = new List<HexMovementDirection>()
+            {
+                HexMovementDirection.East,
+                HexMovementDirection.SouthEast,
+                HexMovementDirection.SouthWest,
+                HexMovementDirection.West,
+                HexMovementDirection.NorthWest,
+                HexMovementDirection.NorthEast
+            };
+
+        public static IList<GridPoint> GetAdjacentHexPoints(GridPoint startingPoint)
+        {
+            var result = new List<GridPoint>();
+            
+            foreach (var direction in HexMovementDirections)
+            {
+                var adjacentPoint = MoveHex(startingPoint, direction);
+                result.Add(adjacentPoint);
             }
             return result;
         }
