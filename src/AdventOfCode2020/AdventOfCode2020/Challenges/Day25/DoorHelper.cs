@@ -14,14 +14,10 @@ namespace AdventOfCode2020.Challenges.Day25
             BigInteger publicKeyCard)
         {
             var loopSizeDoor = GetLoopSizeFromPublicKey(publicKeyDoor);
-            Console.WriteLine($"Door loop size: {loopSizeDoor}");
             var loopSizeCard = GetLoopSizeFromPublicKey(publicKeyCard);
-            Console.WriteLine($"Card loop size: {loopSizeCard}");
 
             var encryptionKeyDoor = GetTransformedSubjectNumber(loopSizeDoor, publicKeyCard);
-            Console.WriteLine($"Encryption key (door): {encryptionKeyDoor}");
             var encryptionKeyCard = GetTransformedSubjectNumber(loopSizeCard, publicKeyDoor);
-            Console.WriteLine($"Encryption key (card): {encryptionKeyCard}");
 
             if (encryptionKeyCard != encryptionKeyDoor)
             {
